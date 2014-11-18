@@ -12,6 +12,7 @@ namespace detail {
  * Passes signals between scopes. Put the spy in the target scope and register 
  * the outer callback (via getOuterCallback()) in the scope you want to spy on.
  */
+template <typename SignalType>
 class Spy : public Agent<> {
 
 public:
@@ -23,14 +24,14 @@ public:
 		Agent<>::getSender().registerSlot(_innerSlot);
 	}
 
-	signals::PassThroughCallback<signals::Signal>& getOuterCallback() { return _outerCallback; }
+	signals::PassThroughCallback<SignalType>& getOuterCallback() { return _outerCallback; }
 
 private:
 
 	// a pass-through callback and slot to forward signals from the outer scope 
 	// to the spy's scope
-	signals::PassThroughCallback<signals::Signal> _outerCallback;
-	signals::PassThroughSlot<signals::Signal>     _innerSlot;
+	signals::PassThroughCallback<SignalType> _outerCallback;
+	signals::PassThroughSlot<SignalType>     _innerSlot;
 };
 
 } // namespace detail

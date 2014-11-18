@@ -5,22 +5,24 @@
 #include <signals/PassThroughSlot.h>
 #include "detail/Spy.h"
 #include "Agent.h"
+#include "Backwards.h"
+#include "Forwards.h"
 
 namespace sg {
 
-template <typename ProvideSignals = Provides<Nothing>, typename AcceptSignals = Accepts<Nothing> >
-class Scope : public Agent<ProvideSignals, AcceptSignals> {
+template <
+		typename BackwardSignals = Backwards<Nothing>,
+		typename ForwardSignals  = Forwards<signals::Signal>,
+		typename ProvideSignals  = Provides<Nothing>,
+		typename AcceptSignals   = Accepts<Nothing>
+>
+class Scope : public BackwardSignals, public ForwardSignals, public Agent<ProvideSignals, AcceptSignals> {
 
 public:
 
-	Scope() :
-			_spy(std::make_shared<detail::Spy>()) {
+	Scope() {
 
-		// register the spy's pass-through callback in the parent scope
-		Agent<ProvideSignals, AcceptSignals>::getReceiver().registerCallback(_spy->getOuterCallback());
-
-		// establish the spy connection to our scope
-		_agents.insert(_spy);
+		ForwardSignals::init(*this);
 	}
 
 	/**
@@ -38,6 +40,8 @@ public:
 		return true;
 	}
 
+	using Agent<ProvideSignals, AcceptSignals>::getReceiver;
+
 private:
 
 	// connect an agent to all agents contained in this scope
@@ -48,10 +52,6 @@ private:
 	}
 
 	std::set<std::shared_ptr<detail::AgentBase> > _agents;
-
-	// an agent that sends and receives signals in this scope for communication 
-	// with the parent scope
-	std::shared_ptr<detail::Spy> _spy;
 };
 
 } // namespace sg

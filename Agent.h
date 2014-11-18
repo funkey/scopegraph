@@ -3,9 +3,9 @@
 
 #include <signals/Sender.h>
 #include <signals/Receiver.h>
-#include "AgentBase.h"
 #include "Provides.h"
 #include "Accepts.h"
+#include "detail/AgentBase.h"
 
 namespace sg {
 
