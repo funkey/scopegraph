@@ -2,8 +2,21 @@
 #define SCOPEGRAPH_ACCEPTS_H__
 
 #include <signals/Callback.h>
+#include "Nothing.h"
 
 namespace sg {
+
+// base class for all Accepts
+class AcceptBase {
+
+protected:
+
+	signals::Receiver& getReceiver() { return _receiver; }
+
+private:
+
+	signals::Receiver _receiver;
+};
 
 // recursive inheritance
 template <typename SignalType, typename ... Rest>
@@ -23,7 +36,7 @@ protected:
 
 	using Accepts<Rest...>::getReceiver;
 
-	void onSignal(const SignalType&) {}
+	virtual void onSignal(const SignalType&) = 0;
 
 private:
 
@@ -32,7 +45,7 @@ private:
 
 // base case
 template <typename SignalType>
-class Accepts<SignalType> {
+class Accepts<SignalType> : public AcceptBase {
 
 public:
 
@@ -41,21 +54,21 @@ public:
 	Accepts() :
 			_callback(boost::bind(&MyType::onSignal, this, _1)) {
 
-		_receiver.registerCallback(_callback);
+		getReceiver().registerCallback(_callback);
 	}
 
 protected:
 
 	virtual void onSignal(const SignalType&) = 0;
 
-	signals::Receiver& getReceiver() { return _receiver; }
-
 private:
 
 	signals::Callback<SignalType> _callback;
-
-	signals::Receiver _receiver;
 };
+
+// specialisation
+template <>
+class Accepts<Nothing> : public AcceptBase {};
 
 } // namespace sg
 

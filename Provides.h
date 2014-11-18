@@ -2,8 +2,24 @@
 #define SCOPEGRAPH_PROVIDES_H__
 
 #include <signals/Slot.h>
+#include "Nothing.h"
 
 namespace sg {
+
+// base class for all Provides
+class ProvideBase {
+
+protected:
+
+	signals::Sender& getSender() {
+
+		return _sender;
+	}
+
+private:
+
+	signals::Sender _sender;
+};
 
 // recursive inheritance
 template <typename SignalType, typename ... Rest>
@@ -19,6 +35,12 @@ public:
 protected:
 
 	using Provides<Rest...>::getSender;
+	using Provides<Rest...>::send;
+
+	inline void send(SignalType& signal) {
+
+		_slot(signal);
+	}
 
 private:
 
@@ -27,24 +49,34 @@ private:
 
 // base case
 template <typename SignalType>
-class Provides<SignalType> {
+class Provides<SignalType> : public ProvideBase {
 
 public:
 
 	Provides() {
 
-		_sender.registerSlot(_slot);
+		getSender().registerSlot(_slot);
 	}
 
 protected:
 
-	signals::Sender& getSender() { return _sender; }
+	inline void send(SignalType& signal) {
+
+		_slot(signal);
+	}
 
 private:
 
 	signals::Slot<SignalType> _slot;
+};
 
-	signals::Sender _sender;
+// specialisation
+template <>
+class Provides<Nothing> : public ProvideBase {
+
+protected:
+
+	inline void send(Nothing&) {}
 };
 
 } // namespace sg

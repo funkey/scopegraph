@@ -3,35 +3,35 @@
 
 #include <signals/Sender.h>
 #include <signals/Receiver.h>
+#include "AgentBase.h"
 #include "Provides.h"
 #include "Accepts.h"
 
 namespace sg {
 
-template <typename ProvideSignals, typename AcceptSignals>
-class Agent : public ProvideSignals, public AcceptSignals {
-
-public:
-
-	void connect(Agent& other) {
-
-		getSender().connect(other._receiver);
-		other.getSender().connect(_receiver);
-	}
-
-	void disconnect(Agent& other) {
-
-		getSender().disconnect(other._receiver);
-		other.getSender().disconnect(_receiver);
-	}
+template <typename ProvideSignals = Provides<Nothing>, typename AcceptSignals = Accepts<Nothing>>
+class Agent : public detail::AgentBase, public ProvideSignals, public AcceptSignals {
 
 protected:
 
-	using ProvideSignals::getSender;
+	using ProvideSignals::send;
 
-private:
+	signals::Sender& getSender() {
 
-	signals::Receiver _receiver;
+		return ProvideSignals::getSender();
+	}
+
+	signals::Receiver& getReceiver() {
+
+		return AcceptSignals::getReceiver();
+	}
+
+	template <typename SignalType, typename ... Args>
+	void send(Args ... args) {
+
+		SignalType signal(args ...);
+		send(signal);
+	}
 };
 
 } // namespace sg
