@@ -3,6 +3,7 @@
 
 #include <signals/PassThroughCallback.h>
 #include <signals/PassThroughSlot.h>
+#include "detail/Spy.h"
 #include "Agent.h"
 
 namespace sg {
@@ -13,14 +14,10 @@ class Scope : public Agent<ProvideSignals, AcceptSignals> {
 public:
 
 	Scope() :
-			_spy(std::make_shared<Agent<>>) {
+			_spy(std::make_shared<detail::Spy>()) {
 
-		// couple the pass-through callback and slot
-		_parentCallback.forwardTo(_spySlot);
-
-		// register the pass-through callback and slot in our parent and spy
-		Agent<ProvideSignals, AcceptSignals>::getReceiver().registerCallback(_parentCallback);
-		_spy->getSender().registerSlot(_spySlot);
+		// register the spy's pass-through callback in the parent scope
+		Agent<ProvideSignals, AcceptSignals>::getReceiver().registerCallback(_spy->getOuterCallback());
 
 		// establish the spy connection to our scope
 		_agents.insert(_spy);
@@ -54,12 +51,7 @@ private:
 
 	// an agent that sends and receives signals in this scope for communication 
 	// with the parent scope
-	std::shared_ptr<Agent<>> _spy;
-
-	// a pass-through callback and slot to forward signals from the parent scope 
-	// to the spy
-	signals::PassThroughCallback<signals::Signal> _parentCallback;
-	signals::PassThroughSlot<signals::Signal>     _spySlot;
+	std::shared_ptr<detail::Spy> _spy;
 };
 
 } // namespace sg
