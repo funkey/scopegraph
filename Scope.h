@@ -1,9 +1,6 @@
 #ifndef SCOPEGRAPH_SCOPE_H__
 #define SCOPEGRAPH_SCOPE_H__
 
-#include <signals/PassThroughCallback.h>
-#include <signals/PassThroughSlot.h>
-#include "detail/Spy.h"
 #include "Agent.h"
 #include "Backwards.h"
 #include "Forwards.h"
@@ -20,10 +17,15 @@ class Scope : public BackwardSignals, public ForwardSignals, public Agent<Provid
 
 public:
 
-	Scope() {
+	typedef Agent<> SpyType;
+
+	Scope() :
+		_spy(std::make_shared<SpyType>()) {
 
 		ForwardSignals::init(*this);
 		BackwardSignals::init(*this);
+
+		add(_spy);
 	}
 
 	/**
@@ -41,6 +43,15 @@ public:
 		return true;
 	}
 
+	/**
+	 * Get the spy of this scope. This is an agent that lives in this scope and 
+	 * provides communication with the outside world, e.g., the parent scope.
+	 */
+	SpyType& getSpy() {
+
+		return *_spy;
+	}
+
 	using Agent<ProvideSignals, AcceptSignals>::getReceiver;
 	using Agent<ProvideSignals, AcceptSignals>::getSender;
 
@@ -54,6 +65,8 @@ private:
 	}
 
 	std::set<std::shared_ptr<detail::AgentBase> > _agents;
+
+	std::shared_ptr<SpyType> _spy;
 };
 
 } // namespace sg

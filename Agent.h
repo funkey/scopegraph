@@ -12,9 +12,7 @@ namespace sg {
 template <typename ProvideSignals = Provides<Nothing>, typename AcceptSignals = Accepts<Nothing>>
 class Agent : public detail::AgentBase, public ProvideSignals, public AcceptSignals {
 
-protected:
-
-	using ProvideSignals::send;
+public:
 
 	signals::Sender& getSender() {
 
@@ -25,6 +23,10 @@ protected:
 
 		return AcceptSignals::getReceiver();
 	}
+
+protected:
+
+	using ProvideSignals::send;
 
 	template <typename SignalType, typename ... Args>
 	void send(Args ... args) {

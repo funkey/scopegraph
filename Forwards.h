@@ -1,8 +1,8 @@
 #ifndef SCOPEGRAPH_FORWARDS_H__
 #define SCOPEGRAPH_FORWARDS_H__
 
-#include "detail/AgentBase.h"
-#include "detail/Spy.h"
+#include <signals/PassThroughCallback.h>
+#include <signals/PassThroughSlot.h>
 
 namespace sg {
 
@@ -12,23 +12,24 @@ class Forwards : public Forwards<Rest...> {
 
 public:
 
-	Forwards() : _spy(std::make_shared<detail::Spy<SignalType>>()) {}
+	Forwards() {
+
+		_outerCallback.forwardTo(_innerSlot);
+	}
 
 	template <typename ScopeType>
 	void init(ScopeType& scope) {
 
-		// register the spy's pass-through callback in the parent scope
-		scope.getReceiver().registerCallback(_spy->getOuterCallback());
-
-		// establish the spy connection to our scope
-		scope.add(_spy);
+		scope.getSpy().getSender().registerSlot(_innerSlot);
+		scope.getReceiver().registerCallback(_outerCallback);
 
 		Forwards<Rest...>::init(scope);
 	}
 
 private:
 
-	std::shared_ptr<detail::Spy<SignalType>> _spy;
+	signals::PassThroughCallback<SignalType> _outerCallback;
+	signals::PassThroughSlot<SignalType>     _innerSlot;
 };
 
 // base case
@@ -37,21 +38,22 @@ class Forwards<SignalType> {
 
 public:
 
-	Forwards() : _spy(std::make_shared<detail::Spy<SignalType>>()) {}
+	Forwards() {
+
+		_outerCallback.forwardTo(_innerSlot);
+	}
 
 	template <typename ScopeType>
 	void init(ScopeType& scope) {
 
-		// register the spy's pass-through callback in the parent scope
-		scope.getReceiver().registerCallback(_spy->getOuterCallback());
-
-		// establish the spy connection to our scope
-		scope.add(_spy);
+		scope.getSpy().getSender().registerSlot(_innerSlot);
+		scope.getReceiver().registerCallback(_outerCallback);
 	}
 
 private:
 
-	std::shared_ptr<detail::Spy<SignalType>> _spy;
+	signals::PassThroughCallback<SignalType> _outerCallback;
+	signals::PassThroughSlot<SignalType>     _innerSlot;
 };
 
 // specialisation
