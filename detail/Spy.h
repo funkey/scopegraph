@@ -20,17 +20,22 @@ public:
 	Spy() {
 
 		_outerCallback.forwardTo(_innerSlot);
+		_innerCallback.forwardTo(_outerSlot);
 
 		Agent<>::getSender().registerSlot(_innerSlot);
+		Agent<>::getReceiver().registerCallback(_innerCallback);
 	}
 
 	signals::PassThroughCallback<SignalType>& getOuterCallback() { return _outerCallback; }
+	signals::PassThroughSlot<SignalType>&     getOuterSlot()     { return _outerSlot; }
 
 private:
 
 	// a pass-through callback and slot to forward signals from the outer scope 
 	// to the spy's scope
 	signals::PassThroughCallback<SignalType> _outerCallback;
+	signals::PassThroughCallback<SignalType> _innerCallback;
+	signals::PassThroughSlot<SignalType>     _outerSlot;
 	signals::PassThroughSlot<SignalType>     _innerSlot;
 };
 

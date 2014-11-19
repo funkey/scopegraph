@@ -23,6 +23,7 @@ public:
 	Scope() {
 
 		ForwardSignals::init(*this);
+		BackwardSignals::init(*this);
 	}
 
 	/**
@@ -41,6 +42,7 @@ public:
 	}
 
 	using Agent<ProvideSignals, AcceptSignals>::getReceiver;
+	using Agent<ProvideSignals, AcceptSignals>::getSender;
 
 private:
 

@@ -56,7 +56,13 @@ private:
 
 // specialisation
 template <>
-class Forwards<Nothing> {};
+class Forwards<Nothing> {
+
+public:
+
+	template <typename ScopeType>
+	void init(ScopeType&) {}
+};
 
 } // namespace sg
 
