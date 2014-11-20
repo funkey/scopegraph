@@ -4,16 +4,24 @@
 #include "Agent.h"
 #include "Backwards.h"
 #include "Forwards.h"
+#include "detail/ParamDefault.h"
 
 namespace sg {
 
-template <
-		typename BackwardSignals = Backwards<Nothing>,
-		typename ForwardSignals  = Forwards<signals::Signal>,
-		typename ProvideSignals  = Provides<Nothing>,
-		typename AcceptSignals   = Accepts<Nothing>
->
-class Scope : public BackwardSignals, public ForwardSignals, public Agent<ProvideSignals, AcceptSignals> {
+template <typename ... Params>
+class Scope :
+	public detail::ParamDefault<Backwards<Nothing>,Params...>::Value,
+	public detail::ParamDefault<Forwards<signals::Signal>,Params...>::Value,
+	public Agent<
+		typename detail::ParamDefault<Provides<Nothing>,Params...>::Value,
+		typename detail::ParamDefault<Accepts<Nothing>,Params...>::Value
+	>
+	{
+
+private:
+
+	typedef typename detail::ParamDefault<Backwards<Nothing>,Params...>::Value         ForwardSignals;
+	typedef typename detail::ParamDefault<Forwards<signals::Signal>,Params...>::Value  BackwardSignals;
 
 public:
 
@@ -52,8 +60,8 @@ public:
 		return *_spy;
 	}
 
-	using Agent<ProvideSignals, AcceptSignals>::getReceiver;
-	using Agent<ProvideSignals, AcceptSignals>::getSender;
+	//using Agent<ProvideSignals, AcceptSignals>::getReceiver;
+	//using Agent<ProvideSignals, AcceptSignals>::getSender;
 
 private:
 
