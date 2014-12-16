@@ -7,7 +7,11 @@ namespace sg {
 namespace detail {
 
 // base class for all AcceptImpls
-class AcceptsImplBase {};
+class AcceptsImplBase {
+public:
+
+	virtual ~AcceptsImplBase() {}
+};
 
 template <typename SignalType>
 class AcceptsImpl : public AcceptsImplBase {
@@ -16,7 +20,7 @@ public:
 
 	typedef AcceptsImplBase HandlerBaseType;
 
-	virtual void onSignal(const SignalType&) = 0;
+	virtual void onSignal(SignalType&) = 0;
 
 protected:
 
@@ -28,7 +32,7 @@ protected:
 
 // recursive inheritance
 template <typename SignalType, typename ... Rest>
-class AcceptsRec: public AcceptsImpl<SignalType>, public AcceptsRec<Rest...> {
+class AcceptsRec : public AcceptsImpl<SignalType>, public AcceptsRec<Rest...> {
 
 protected:
 

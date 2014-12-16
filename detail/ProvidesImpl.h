@@ -1,7 +1,9 @@
 #ifndef SCOPEGRAPH_DETAIL_PROVIDES_IMPL_H__
 #define SCOPEGRAPH_DETAIL_PROVIDES_IMPL_H__
 
+#include <signals/VirtualCallbackInvoker.h>
 #include <scopegraph/Signals.h>
+#include "AcceptsImpl.h"
 
 namespace sg {
 namespace detail {
@@ -23,7 +25,7 @@ protected:
 
 private:
 
-	signals::Slot<SignalType> _slot;
+	signals::Slot<SignalType, signals::VirtualCallbackInvoker<SignalType, AcceptsImpl<SignalType>>> _slot;
 };
 
 // recursive inheritance

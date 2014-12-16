@@ -29,7 +29,7 @@ public:
 
 	private:
 
-		void onSignal(const AddAgent& /*signal*/) {/*TODO*/}
+		void onSignal(AddAgent& /*signal*/) {/*TODO*/}
 	};
 
 	Scope() :
