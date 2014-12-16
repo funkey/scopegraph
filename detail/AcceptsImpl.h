@@ -1,72 +1,64 @@
 #ifndef SCOPEGRAPH_DETAIL_ACCEPTS_IMPL_H__
 #define SCOPEGRAPH_DETAIL_ACCEPTS_IMPL_H__
 
+#include <signals/VirtualCallback.h>
+
 namespace sg {
 namespace detail {
 
-// base class for all Accepts
-class AcceptBase {
+// base class for all AcceptImpls
+class AcceptsImplBase {};
+
+template <typename SignalType>
+class AcceptsImpl : public AcceptsImplBase {
+
+public:
+
+	typedef AcceptsImplBase HandlerBaseType;
+
+	virtual void onSignal(const SignalType&) = 0;
 
 protected:
 
-	signals::Receiver& getReceiver() { return _receiver; }
+	void collectCallbacks(signals::Receiver& receiver) {
 
-private:
-
-	signals::Receiver _receiver;
+		receiver.registerCallback(new signals::VirtualCallback<SignalType,AcceptsImpl<SignalType>>(this));
+	}
 };
 
 // recursive inheritance
 template <typename SignalType, typename ... Rest>
-class AcceptsImpl : public AcceptsImpl<Rest...> {
-
-public:
-
-	typedef AcceptsImpl<SignalType, Rest...> MyType;
-
-	AcceptsImpl() :
-			_callback(boost::bind(&MyType::onSignal, this, _1)) {
-
-		getReceiver().registerCallback(_callback);
-	}
+class AcceptsRec: public AcceptsImpl<SignalType>, public AcceptsRec<Rest...> {
 
 protected:
 
-	using AcceptsImpl<Rest...>::getReceiver;
+	void collectCallbacks(signals::Receiver& reciever) {
 
-	virtual void onSignal(const SignalType&) = 0;
-
-private:
-
-	signals::Callback<SignalType> _callback;
+		AcceptsImpl<SignalType>::collectCallbacks(reciever);
+		AcceptsRec<Rest...>::collectCallbacks(reciever);
+	}
 };
 
-// base case
+// last on in inheritance chain
 template <typename SignalType>
-class AcceptsImpl<SignalType> : public AcceptBase {
-
-public:
-
-	typedef AcceptsImpl<SignalType> MyType;
-
-	AcceptsImpl() :
-			_callback(boost::bind(&MyType::onSignal, this, _1)) {
-
-		getReceiver().registerCallback(_callback);
-	}
+class AcceptsRec<SignalType> : public AcceptsImpl<SignalType> {
 
 protected:
 
-	virtual void onSignal(const SignalType&) = 0;
+	void collectCallbacks(signals::Receiver& reciever) {
 
-private:
-
-	signals::Callback<SignalType> _callback;
+		AcceptsImpl<SignalType>::collectCallbacks(reciever);
+	}
 };
 
 // specialisation
 template <>
-class AcceptsImpl<Nothing> : public AcceptBase {};
+class AcceptsRec<Nothing> {
+
+protected:
+
+	void collectCallbacks(signals::Receiver&) {}
+};
 
 } // namespace detail
 } // namespace sg

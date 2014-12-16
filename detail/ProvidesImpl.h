@@ -6,75 +6,63 @@
 namespace sg {
 namespace detail {
 
-// base class for all Provides
-class ProvideBase {
+template <typename SignalType>
+class ProvidesImpl {
 
 protected:
 
-	signals::Sender& getSender() {
+	void collectSlots(signals::Sender& sender) {
 
-		return _sender;
+		sender.registerSlot(_slot);
+	}
+
+	inline void send(SignalType& signal) {
+
+		_slot(signal);
 	}
 
 private:
 
-	signals::Sender _sender;
+	signals::Slot<SignalType> _slot;
 };
 
 // recursive inheritance
 template <typename SignalType, typename ... Rest>
-class ProvidesImpl : public ProvidesImpl<Rest...> {
-
-public:
-
-	ProvidesImpl() {
-
-		getSender().registerSlot(_slot);
-	}
+class ProvidesRec : public ProvidesImpl<SignalType>, public ProvidesRec<Rest...> {
 
 protected:
 
-	using ProvidesImpl<Rest...>::getSender;
-	using ProvidesImpl<Rest...>::send;
+	void collectSlots(signals::Sender& sender) {
 
-	inline void send(SignalType& signal) {
-
-		_slot(signal);
+		ProvidesImpl<SignalType>::collectSlots(sender);
+		ProvidesRec<Rest...>::collectSlots(sender);
 	}
 
-private:
-
-	signals::Slot<SignalType> _slot;
+	using ProvidesImpl<SignalType>::send;
+	using ProvidesRec<Rest...>::send;
 };
 
 // base case
 template <typename SignalType>
-class ProvidesImpl<SignalType> : public ProvideBase {
-
-public:
-
-	ProvidesImpl() {
-
-		getSender().registerSlot(_slot);
-	}
+class ProvidesRec<SignalType> : public ProvidesImpl<SignalType> {
 
 protected:
 
-	inline void send(SignalType& signal) {
+	void collectSlots(signals::Sender& sender) {
 
-		_slot(signal);
+		ProvidesImpl<SignalType>::collectSlots(sender);
 	}
 
-private:
-
-	signals::Slot<SignalType> _slot;
+	using ProvidesImpl<SignalType>::send;
 };
 
 // specialisation
 template <>
-class ProvidesImpl<Nothing> : public ProvideBase {
+class ProvidesRec<Nothing> {
 
 protected:
+
+	void collectSlots(signals::Sender&) {}
 
 	inline void send(Nothing&) {}
 };

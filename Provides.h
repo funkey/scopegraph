@@ -8,7 +8,28 @@ namespace sg {
 
 // provide all user-requested Signals and a few internal ones
 template <typename ... Signals>
-class Provides : public detail::ProvidesImpl<Signals...> {};
+class Provides : public detail::ProvidesRec<Signals...> {
+
+public:
+
+	Provides() {
+
+		detail::ProvidesRec<Signals...>::collectSlots(_sender);
+	}
+
+protected:
+
+	signals::Sender& getSender() {
+
+		return _sender;
+	}
+
+	using detail::ProvidesRec<Signals...>::send;
+
+private:
+
+	signals::Sender _sender;
+};
 
 } // namespace sg
 
