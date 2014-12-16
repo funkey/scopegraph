@@ -25,10 +25,15 @@ private:
 
 public:
 
-	typedef Agent<> SpyType;
+	class Spy : public Agent<Accepts<AddAgent>> {
+
+	private:
+
+		void onSignal(const AddAgent& /*signal*/) {/*TODO*/}
+	};
 
 	Scope() :
-		_spy(std::make_shared<SpyType>()) {
+		_spy(std::make_shared<Spy>()) {
 
 		ForwardSignals::init(*this);
 		BackwardSignals::init(*this);
@@ -55,7 +60,7 @@ public:
 	 * Get the spy of this scope. This is an agent that lives in this scope and 
 	 * provides communication with the outside world, e.g., the parent scope.
 	 */
-	SpyType& getSpy() {
+	Spy& getSpy() {
 
 		return *_spy;
 	}
@@ -74,7 +79,7 @@ private:
 
 	std::set<std::shared_ptr<detail::AgentBase> > _agents;
 
-	std::shared_ptr<SpyType> _spy;
+	std::shared_ptr<Spy> _spy;
 };
 
 } // namespace sg

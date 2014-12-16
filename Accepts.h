@@ -3,13 +3,12 @@
 
 #include <signals/Callback.h>
 #include "detail/AcceptsImpl.h"
-#include "Signals.h"
 
 namespace sg {
 
 // accept all user-requested Signals and a few internal ones
 template <typename ... Signals>
-class Accepts : public detail::AcceptsImpl<sg::AddAgent, Signals...> {};
+class Accepts : public detail::AcceptsImpl<Signals...> {};
 
 } // namespace sg
 
