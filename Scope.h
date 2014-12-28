@@ -4,6 +4,7 @@
 #include "Agent.h"
 #include "Backwards.h"
 #include "Forwards.h"
+#include "AcceptsInner.h"
 #include "ProvidesInner.h"
 #include "detail/Spy.h"
 #include "detail/ParamDefault.h"
@@ -15,7 +16,7 @@ class Scope :
 	public detail::ParamDefault<Backwards<Nothing>,Params...>::Value,
 	public detail::ParamDefault<Forwards<signals::Signal>,Params...>::Value,
 	public detail::ParamDefault<ProvidesInner<Nothing>,Params...>::Value,
-	//public detail::ParamDefault<AcceptsInner<Nothing>,Params...>::Value,
+	public detail::ParamDefault<AcceptsInner<Nothing>,Params...>::Value,
 	public Agent<
 		typename detail::ParamDefault<Provides<Nothing>,Params...>::Value,
 		typename detail::ParamDefault<Accepts<Nothing>,Params...>::Value
@@ -24,11 +25,12 @@ class Scope :
 
 private:
 
-	typedef typename detail::ParamDefault<Forwards<signals::Signal>,Params...>::Value  ForwardsType;
-	typedef typename detail::ParamDefault<Backwards<Nothing>,Params...>::Value         BackwardsType;
-	typedef typename detail::ParamDefault<ProvidesInner<Nothing>,Params...>::Value     ProvidesInnerType;
+	typedef typename detail::ParamDefault<Forwards<signals::Signal>,Params...>::Value ForwardsType;
+	typedef typename detail::ParamDefault<Backwards<Nothing>,Params...>::Value        BackwardsType;
+	typedef typename detail::ParamDefault<ProvidesInner<Nothing>,Params...>::Value    ProvidesInnerType;
+	typedef typename detail::ParamDefault<AcceptsInner<Nothing>,Params...>::Value     AcceptsInnerType;
 
-	typedef detail::Spy<ProvidesInnerType> SpyType;
+	typedef detail::Spy SpyType;
 
 public:
 
@@ -37,6 +39,7 @@ public:
 		ForwardsType::init(*this);
 		BackwardsType::init(*this);
 		ProvidesInnerType::init(_spy);
+		AcceptsInnerType::init(_spy);
 	}
 
 	/**

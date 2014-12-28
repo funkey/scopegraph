@@ -6,10 +6,9 @@
 namespace sg {
 namespace detail {
 
-template <typename ... Ts>
-class Spy{};
-template <typename ... ProvidesInnerSignals>
-class Spy<ProvidesInner<ProvidesInnerSignals...>> : public Agent<Accepts<AddAgent>, Provides<ProvidesInnerSignals...>> {
+class Spy : public Agent<
+		Accepts<AddAgent>
+> {
 
 private:
 
