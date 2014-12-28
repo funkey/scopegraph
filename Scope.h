@@ -5,6 +5,7 @@
 #include "Backwards.h"
 #include "Forwards.h"
 #include "ProvidesInner.h"
+#include "detail/Spy.h"
 #include "detail/ParamDefault.h"
 
 namespace sg {
@@ -27,20 +28,9 @@ private:
 	typedef typename detail::ParamDefault<Backwards<Nothing>,Params...>::Value         BackwardsType;
 	typedef typename detail::ParamDefault<ProvidesInner<Nothing>,Params...>::Value     ProvidesInnerType;
 
+	typedef detail::Spy<ProvidesInnerType> SpyType;
+
 public:
-
-	template <typename ... Ts>
-	class Spy{};
-
-	typedef Spy<ProvidesInnerType> SpyType;
-
-	template <typename ... ProvidesInnerSignals>
-	class Spy<ProvidesInner<ProvidesInnerSignals...>> : public Agent<Accepts<AddAgent>, Provides<ProvidesInnerSignals...>> {
-
-	private:
-
-		void onSignal(AddAgent& /*signal*/) {/*TODO*/}
-	};
 
 	Scope() :
 		_spy(std::make_shared<SpyType>()) {
