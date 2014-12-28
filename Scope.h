@@ -32,14 +32,11 @@ private:
 
 public:
 
-	Scope() :
-		_spy(std::make_shared<SpyType>()) {
+	Scope() {
 
 		ForwardsType::init(*this);
 		BackwardsType::init(*this);
-		ProvidesInnerType::init(*_spy);
-
-		add(_spy);
+		ProvidesInnerType::init(_spy);
 	}
 
 	/**
@@ -80,7 +77,7 @@ public:
 	 */
 	SpyType& getSpy() {
 
-		return *_spy;
+		return _spy;
 	}
 
 protected:
@@ -89,22 +86,27 @@ protected:
 
 private:
 
-	// connect an agent to all agents contained in this scope
+	// connect an agent to all agents contained in this scope and the spy
 	void connect(detail::AgentBase& agent) {
 
 		for (auto const& other : _agents)
 			other->connect(agent);
+
+		_spy.connect(agent);
 	}
 
+	// disconnect an agent from all agents contained in this scope and the spy
 	void disconnect(detail::AgentBase& agent) {
 
 		for (auto const& other : _agents)
 			other->disconnect(agent);
+
+		_spy.disconnect(agent);
 	}
 
 	std::set<std::shared_ptr<detail::AgentBase> > _agents;
 
-	std::shared_ptr<SpyType> _spy;
+	SpyType _spy;
 };
 
 } // namespace sg
