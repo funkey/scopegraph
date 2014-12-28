@@ -4,6 +4,7 @@
 #include "Agent.h"
 #include "Backwards.h"
 #include "Forwards.h"
+#include "ProvidesInner.h"
 #include "detail/ParamDefault.h"
 
 namespace sg {
@@ -12,6 +13,8 @@ template <typename ... Params>
 class Scope :
 	public detail::ParamDefault<Backwards<Nothing>,Params...>::Value,
 	public detail::ParamDefault<Forwards<signals::Signal>,Params...>::Value,
+	public detail::ParamDefault<ProvidesInner<Nothing>,Params...>::Value,
+	//public detail::ParamDefault<AcceptsInner<Nothing>,Params...>::Value,
 	public Agent<
 		typename detail::ParamDefault<Provides<Nothing>,Params...>::Value,
 		typename detail::ParamDefault<Accepts<Nothing>,Params...>::Value
@@ -20,12 +23,19 @@ class Scope :
 
 private:
 
-	typedef typename detail::ParamDefault<Backwards<Nothing>,Params...>::Value         ForwardSignals;
-	typedef typename detail::ParamDefault<Forwards<signals::Signal>,Params...>::Value  BackwardSignals;
+	typedef typename detail::ParamDefault<Forwards<signals::Signal>,Params...>::Value  ForwardsType;
+	typedef typename detail::ParamDefault<Backwards<Nothing>,Params...>::Value         BackwardsType;
+	typedef typename detail::ParamDefault<ProvidesInner<Nothing>,Params...>::Value     ProvidesInnerType;
 
 public:
 
-	class Spy : public Agent<Accepts<AddAgent>> {
+	template <typename ... Ts>
+	class Spy{};
+
+	typedef Spy<ProvidesInnerType> SpyType;
+
+	template <typename ... ProvidesInnerSignals>
+	class Spy<ProvidesInner<ProvidesInnerSignals...>> : public Agent<Accepts<AddAgent>, Provides<ProvidesInnerSignals...>> {
 
 	private:
 
@@ -33,10 +43,11 @@ public:
 	};
 
 	Scope() :
-		_spy(std::make_shared<Spy>()) {
+		_spy(std::make_shared<SpyType>()) {
 
-		ForwardSignals::init(*this);
-		BackwardSignals::init(*this);
+		ForwardsType::init(*this);
+		BackwardsType::init(*this);
+		ProvidesInnerType::init(*_spy);
 
 		add(_spy);
 	}
@@ -57,16 +68,34 @@ public:
 	}
 
 	/**
+	 * Remove an agent from this scope. Returns false, if the agent was not part 
+	 * of this scope.
+	 */
+	bool remove(std::shared_ptr<detail::AgentBase> agent) {
+
+		auto iterator = std::find(_agents.begin(), _agents.end(), agent);
+
+		if (iterator == _agents.end())
+			return false;
+
+		disconnect(*agent);
+		_agents.erase(iterator);
+
+		return true;
+	}
+
+	/**
 	 * Get the spy of this scope. This is an agent that lives in this scope and 
 	 * provides communication with the outside world, e.g., the parent scope.
 	 */
-	Spy& getSpy() {
+	SpyType& getSpy() {
 
 		return *_spy;
 	}
 
-	//using Agent<ProvideSignals, AcceptSignals>::getReceiver;
-	//using Agent<ProvideSignals, AcceptSignals>::getSender;
+protected:
+
+	using ProvidesInnerType::sendInner;
 
 private:
 
@@ -77,9 +106,15 @@ private:
 			other->connect(agent);
 	}
 
+	void disconnect(detail::AgentBase& agent) {
+
+		for (auto const& other : _agents)
+			other->disconnect(agent);
+	}
+
 	std::set<std::shared_ptr<detail::AgentBase> > _agents;
 
-	std::shared_ptr<Spy> _spy;
+	std::shared_ptr<SpyType> _spy;
 };
 
 } // namespace sg

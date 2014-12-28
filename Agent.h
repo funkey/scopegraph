@@ -36,13 +36,6 @@ public:
 protected:
 
 	using ProvideSignals::send;
-
-	template <typename SignalType, typename ... Args>
-	void send(Args ... args) {
-
-		SignalType signal(args ...);
-		send(signal);
-	}
 };
 
 } // namespace sg
