@@ -1,7 +1,6 @@
 #ifndef SCOPEGRAPH_ACCEPTS_INNER_H__
 #define SCOPEGRAPH_ACCEPTS_INNER_H__
 
-#include <signals/Callback.h>
 #include "detail/AcceptsInnerImpl.h"
 
 namespace sg {

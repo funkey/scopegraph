@@ -1,11 +1,13 @@
 #ifndef SCOPEGRAPH_SCOPE_H__
 #define SCOPEGRAPH_SCOPE_H__
 
+#include <set>
 #include "Agent.h"
 #include "Backwards.h"
 #include "Forwards.h"
 #include "AcceptsInner.h"
 #include "ProvidesInner.h"
+#include "Signals.h"
 #include "detail/Spy.h"
 #include "detail/ParamDefault.h"
 
@@ -14,7 +16,7 @@ namespace sg {
 template <typename ... Params>
 class Scope :
 	public detail::ParamDefault<Backwards<Nothing>,Params...>::Value,
-	public detail::ParamDefault<Forwards<signals::Signal>,Params...>::Value,
+	public detail::ParamDefault<Forwards<Signal>,Params...>::Value,
 	public detail::ParamDefault<ProvidesInner<Nothing>,Params...>::Value,
 	public detail::ParamDefault<AcceptsInner<Nothing>,Params...>::Value,
 	public Agent<
@@ -25,7 +27,7 @@ class Scope :
 
 private:
 
-	typedef typename detail::ParamDefault<Forwards<signals::Signal>,Params...>::Value ForwardsType;
+	typedef typename detail::ParamDefault<Forwards<Signal>,Params...>::Value ForwardsType;
 	typedef typename detail::ParamDefault<Backwards<Nothing>,Params...>::Value        BackwardsType;
 	typedef typename detail::ParamDefault<ProvidesInner<Nothing>,Params...>::Value    ProvidesInnerType;
 	typedef typename detail::ParamDefault<AcceptsInner<Nothing>,Params...>::Value     AcceptsInnerType;

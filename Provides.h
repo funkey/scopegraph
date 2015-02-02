@@ -1,7 +1,7 @@
 #ifndef SCOPEGRAPH_PROVIDES_H__
 #define SCOPEGRAPH_PROVIDES_H__
 
-#include <signals/Slot.h>
+#include <cohear/Sender.h>
 #include "detail/ProvidesImpl.h"
 
 namespace sg {
@@ -32,7 +32,7 @@ protected:
 	/**
 	 * Get the sender that holds the slots for the requested signals.
 	 */
-	signals::Sender& getSender() {
+	chr::Sender& getSender() {
 
 		return _sender;
 	}
@@ -48,7 +48,7 @@ protected:
 
 private:
 
-	signals::Sender _sender;
+	chr::Sender _sender;
 };
 
 } // namespace sg

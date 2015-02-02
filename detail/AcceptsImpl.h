@@ -1,32 +1,23 @@
 #ifndef SCOPEGRAPH_DETAIL_ACCEPTS_IMPL_H__
 #define SCOPEGRAPH_DETAIL_ACCEPTS_IMPL_H__
 
-#include <signals/VirtualCallback.h>
+#include <cohear/Receiver.h>
 
 namespace sg {
 namespace detail {
 
-// base class for all AcceptImpls
-class AcceptsImplBase {
-public:
-
-	virtual ~AcceptsImplBase() {}
-};
-
 template <typename SignalType>
-class AcceptsImpl : public AcceptsImplBase {
+class AcceptsImpl {
 
 public:
-
-	typedef AcceptsImplBase HandlerBaseType;
 
 	virtual void onSignal(SignalType&) = 0;
 
 protected:
 
-	void collectCallbacks(signals::Receiver& receiver) {
+	void collectCallbacks(chr::Receiver& receiver) {
 
-		receiver.registerCallback(new signals::VirtualCallback<SignalType,AcceptsImpl<SignalType>>(this));
+		receiver.registerCallback<SignalType, AcceptsImpl<SignalType>, &AcceptsImpl<SignalType>::onSignal>(this);
 	}
 };
 
@@ -36,7 +27,7 @@ class AcceptsRec : public AcceptsImpl<SignalType>, public AcceptsRec<Rest...> {
 
 protected:
 
-	void collectCallbacks(signals::Receiver& reciever) {
+	void collectCallbacks(chr::Receiver& reciever) {
 
 		AcceptsImpl<SignalType>::collectCallbacks(reciever);
 		AcceptsRec<Rest...>::collectCallbacks(reciever);
@@ -49,7 +40,7 @@ class AcceptsRec<SignalType> : public AcceptsImpl<SignalType> {
 
 protected:
 
-	void collectCallbacks(signals::Receiver& reciever) {
+	void collectCallbacks(chr::Receiver& reciever) {
 
 		AcceptsImpl<SignalType>::collectCallbacks(reciever);
 	}
@@ -61,7 +52,7 @@ class AcceptsRec<Nothing> {
 
 protected:
 
-	void collectCallbacks(signals::Receiver&) {}
+	void collectCallbacks(chr::Receiver&) {}
 };
 
 } // namespace detail

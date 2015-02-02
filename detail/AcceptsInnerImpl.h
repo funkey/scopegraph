@@ -1,26 +1,23 @@
 #ifndef SCOPEGRAPH_DETAIL_ACCEPTS_INNER_IMPL_H__
 #define SCOPEGRAPH_DETAIL_ACCEPTS_INNER_IMPL_H__
 
-#include <signals/VirtualCallback.h>
-#include "AcceptsImpl.h"
+#include <cohear/Receiver.h>
 
 namespace sg {
 namespace detail {
 
 template <typename SignalType>
-class AcceptsInnerImpl : public AcceptsImpl<SignalType> {
+class AcceptsInnerImpl {
 
 public:
-
-	void onSignal(SignalType& signal) override final { onInnerSignal(signal); }
 
 	virtual void onInnerSignal(SignalType&) = 0;
 
 protected:
 
-	void collectCallbacks(signals::Receiver& receiver) {
+	void collectCallbacks(chr::Receiver& receiver) {
 
-		AcceptsImpl<SignalType>::collectCallbacks(receiver);
+		receiver.registerCallback<SignalType, AcceptsInnerImpl<SignalType>, &AcceptsInnerImpl<SignalType>::onInnerSignal>(this);
 	}
 };
 
@@ -30,7 +27,7 @@ class AcceptsInnerRec : public AcceptsInnerImpl<SignalType>, public AcceptsInner
 
 protected:
 
-	void collectCallbacks(signals::Receiver& reciever) {
+	void collectCallbacks(chr::Receiver& reciever) {
 
 		AcceptsInnerImpl<SignalType>::collectCallbacks(reciever);
 		AcceptsInnerRec<Rest...>::collectCallbacks(reciever);
@@ -43,7 +40,7 @@ class AcceptsInnerRec<SignalType> : public AcceptsInnerImpl<SignalType> {
 
 protected:
 
-	void collectCallbacks(signals::Receiver& reciever) {
+	void collectCallbacks(chr::Receiver& reciever) {
 
 		AcceptsInnerImpl<SignalType>::collectCallbacks(reciever);
 	}
@@ -55,12 +52,11 @@ class AcceptsInnerRec<Nothing> {
 
 protected:
 
-	void collectCallbacks(signals::Receiver&) {}
+	void collectCallbacks(chr::Receiver&) {}
 };
 
 } // namespace detail
 } // namespace sg
 
 #endif // SCOPEGRAPH_DETAIL_ACCEPTS_INNER_IMPL_H__
-
 

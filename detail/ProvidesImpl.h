@@ -1,7 +1,7 @@
 #ifndef SCOPEGRAPH_DETAIL_PROVIDES_IMPL_H__
 #define SCOPEGRAPH_DETAIL_PROVIDES_IMPL_H__
 
-#include <signals/VirtualCallbackInvoker.h>
+#include <cohear/Slot.h>
 #include <scopegraph/Signals.h>
 #include "AcceptsImpl.h"
 
@@ -13,7 +13,7 @@ class ProvidesImpl {
 
 protected:
 
-	void collectSlots(signals::Sender& sender) {
+	void collectSlots(chr::Sender& sender) {
 
 		sender.registerSlot(_slot);
 	}
@@ -25,7 +25,7 @@ protected:
 
 private:
 
-	signals::Slot<SignalType, signals::VirtualCallbackInvoker<SignalType, AcceptsImpl<SignalType>>> _slot;
+	chr::Slot<SignalType> _slot;
 };
 
 // recursive inheritance
@@ -34,7 +34,7 @@ class ProvidesRec : public ProvidesImpl<SignalType>, public ProvidesRec<Rest...>
 
 protected:
 
-	void collectSlots(signals::Sender& sender) {
+	void collectSlots(chr::Sender& sender) {
 
 		ProvidesImpl<SignalType>::collectSlots(sender);
 		ProvidesRec<Rest...>::collectSlots(sender);
@@ -50,7 +50,7 @@ class ProvidesRec<SignalType> : public ProvidesImpl<SignalType> {
 
 protected:
 
-	void collectSlots(signals::Sender& sender) {
+	void collectSlots(chr::Sender& sender) {
 
 		ProvidesImpl<SignalType>::collectSlots(sender);
 	}
@@ -64,7 +64,7 @@ class ProvidesRec<Nothing> {
 
 protected:
 
-	void collectSlots(signals::Sender&) {}
+	void collectSlots(chr::Sender&) {}
 
 	inline void send(Nothing&) {}
 };

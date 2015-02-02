@@ -1,8 +1,6 @@
 #ifndef SCOPEGRAPH_AGENT_H__
 #define SCOPEGRAPH_AGENT_H__
 
-#include <signals/Sender.h>
-#include <signals/Receiver.h>
 #include "Provides.h"
 #include "Accepts.h"
 #include "detail/AgentBase.h"
@@ -23,12 +21,12 @@ private:
 
 public:
 
-	signals::Sender& getSender() {
+	chr::Sender& getSender() {
 
 		return ProvideSignals::getSender();
 	}
 
-	signals::Receiver& getReceiver() {
+	chr::Receiver& getReceiver() {
 
 		return AcceptSignals::getReceiver();
 	}

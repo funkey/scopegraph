@@ -1,7 +1,7 @@
 #ifndef SCOPEGRAPH_ACCEPTS_H__
 #define SCOPEGRAPH_ACCEPTS_H__
 
-#include <signals/Callback.h>
+#include <cohear/Receiver.h>
 #include "detail/AcceptsImpl.h"
 
 namespace sg {
@@ -30,11 +30,11 @@ protected:
 		detail::AcceptsRec<Signals...>::collectCallbacks(_receiver);
 	}
 
-	signals::Receiver& getReceiver() { return _receiver; }
+	chr::Receiver& getReceiver() { return _receiver; }
 
 private:
 
-	signals::Receiver _receiver;
+	chr::Receiver _receiver;
 };
 
 } // namespace sg

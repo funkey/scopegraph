@@ -1,7 +1,7 @@
 #ifndef SCOPEGRAPH_DETAIL_PROVIDES_INNER_IMPL_H__
 #define SCOPEGRAPH_DETAIL_PROVIDES_INNER_IMPL_H__
 
-#include <signals/VirtualCallbackInvoker.h>
+#include <cohear/Sender.h>
 #include <scopegraph/Signals.h>
 #include "AcceptsImpl.h"
 
@@ -18,7 +18,7 @@ class ProvidesInnerImpl {
 
 protected:
 
-	void collectSlots(signals::Sender& sender) {
+	void collectSlots(chr::Sender& sender) {
 
 		sender.registerSlot(_slot);
 	}
@@ -30,7 +30,7 @@ protected:
 
 private:
 
-	signals::Slot<SignalType, signals::VirtualCallbackInvoker<SignalType, AcceptsImpl<SignalType>>> _slot;
+	chr::Slot<SignalType> _slot;
 };
 
 // recursive inheritance
@@ -39,7 +39,7 @@ class ProvidesInnerRec : public ProvidesInnerImpl<SignalType>, public ProvidesIn
 
 protected:
 
-	void collectSlots(signals::Sender& sender) {
+	void collectSlots(chr::Sender& sender) {
 
 		ProvidesInnerImpl<SignalType>::collectSlots(sender);
 		ProvidesInnerRec<Rest...>::collectSlots(sender);
@@ -55,7 +55,7 @@ class ProvidesInnerRec<SignalType> : public ProvidesInnerImpl<SignalType> {
 
 protected:
 
-	void collectSlots(signals::Sender& sender) {
+	void collectSlots(chr::Sender& sender) {
 
 		ProvidesInnerImpl<SignalType>::collectSlots(sender);
 	}
@@ -69,7 +69,7 @@ class ProvidesInnerRec<Nothing> {
 
 protected:
 
-	void collectSlots(signals::Sender&) {}
+	void collectSlots(chr::Sender&) {}
 
 	inline void sendInner(Nothing&) {}
 };

@@ -1,7 +1,6 @@
 #ifndef SCOPEGRAPH_SIGNALS_H__
 #define SCOPEGRAPH_SIGNALS_H__
 
-#include <signals/Signal.h>
 #include "detail/AgentBase.h"
 
 namespace sg {
@@ -9,7 +8,7 @@ namespace sg {
 /**
  * Base class for all scope-graph signals.
  */
-class Signal : public signals::Signal {};
+class Signal {};
 
 /**
  * A symbol to represent no signal.
@@ -22,6 +21,8 @@ class Nothing : public Signal {};
 class AddAgent : public Signal {
 
 public:
+
+	typedef Signal parent_type;
 
 	AddAgent() {}
 

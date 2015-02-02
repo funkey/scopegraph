@@ -1,8 +1,7 @@
 #ifndef SCOPEGRAPH_FORWARDS_H__
 #define SCOPEGRAPH_FORWARDS_H__
 
-#include <signals/PassThroughCallback.h>
-#include <signals/PassThroughSlot.h>
+#include <cohear/Tunnel.h>
 
 namespace sg {
 
@@ -12,24 +11,18 @@ class Forwards : public Forwards<Rest...> {
 
 public:
 
-	Forwards() {
-
-		_outerCallback.forwardTo(_innerSlot);
-	}
-
 	template <typename ScopeType>
 	void init(ScopeType& scope) {
 
-		scope.getSpy().getSender().registerSlot(_innerSlot);
-		scope.getReceiver().registerCallback(_outerCallback);
+		scope.getSpy().getSender().registerSlot(_tunnel.getSlot());
+		scope.getReceiver().registerCallback(_tunnel.getCallback());
 
 		Forwards<Rest...>::init(scope);
 	}
 
 private:
 
-	signals::PassThroughCallback<SignalType> _outerCallback;
-	signals::PassThroughSlot<SignalType>     _innerSlot;
+	chr::Tunnel<SignalType> _tunnel;
 };
 
 // base case
@@ -38,22 +31,16 @@ class Forwards<SignalType> {
 
 public:
 
-	Forwards() {
-
-		_outerCallback.forwardTo(_innerSlot);
-	}
-
 	template <typename ScopeType>
 	void init(ScopeType& scope) {
 
-		scope.getSpy().getSender().registerSlot(_innerSlot);
-		scope.getReceiver().registerCallback(_outerCallback);
+		scope.getSpy().getSender().registerSlot(_tunnel.getSlot());
+		scope.getReceiver().registerCallback(_tunnel.getCallback());
 	}
 
 private:
 
-	signals::PassThroughCallback<SignalType> _outerCallback;
-	signals::PassThroughSlot<SignalType>     _innerSlot;
+	chr::Tunnel<SignalType> _tunnel;
 };
 
 // specialisation

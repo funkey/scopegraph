@@ -1,6 +1,9 @@
 #ifndef SCOPEGRAPH_AGENT_BASE_H__
 #define SCOPEGRAPH_AGENT_BASE_H__
 
+#include <cohear/Sender.h>
+#include <cohear/Receiver.h>
+
 namespace sg {
 namespace detail {
 
@@ -22,8 +25,8 @@ public:
 
 protected:
 
-	virtual signals::Sender&   getSender()   = 0;
-	virtual signals::Receiver& getReceiver() = 0;
+	virtual chr::Sender&   getSender()   = 0;
+	virtual chr::Receiver& getReceiver() = 0;
 };
 
 } // namespace detail
