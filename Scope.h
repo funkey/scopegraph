@@ -13,24 +13,25 @@
 
 namespace sg {
 
-template <typename ... Params>
+template <typename Derived, typename ... Params>
 class Scope :
 	public detail::ParamDefault<Backwards<Nothing>,Params...>::Value,
 	public detail::ParamDefault<Forwards<Signal>,Params...>::Value,
 	public detail::ParamDefault<ProvidesInner<Nothing>,Params...>::Value,
-	public detail::ParamDefault<AcceptsInner<Nothing>,Params...>::Value,
+	public detail::ParamDefault<AcceptsInner<Derived, Nothing>,Params...>::Value,
 	public Agent<
+		Derived,
 		typename detail::ParamDefault<Provides<Nothing>,Params...>::Value,
-		typename detail::ParamDefault<Accepts<Nothing>,Params...>::Value
+		typename detail::ParamDefault<Accepts<Derived, Nothing>,Params...>::Value
 	>
 	{
 
 private:
 
-	typedef typename detail::ParamDefault<Forwards<Signal>,Params...>::Value ForwardsType;
-	typedef typename detail::ParamDefault<Backwards<Nothing>,Params...>::Value        BackwardsType;
-	typedef typename detail::ParamDefault<ProvidesInner<Nothing>,Params...>::Value    ProvidesInnerType;
-	typedef typename detail::ParamDefault<AcceptsInner<Nothing>,Params...>::Value     AcceptsInnerType;
+	typedef typename detail::ParamDefault<Forwards<Signal>,Params...>::Value               ForwardsType;
+	typedef typename detail::ParamDefault<Backwards<Nothing>,Params...>::Value             BackwardsType;
+	typedef typename detail::ParamDefault<ProvidesInner<Nothing>,Params...>::Value         ProvidesInnerType;
+	typedef typename detail::ParamDefault<AcceptsInner<Derived, Nothing>,Params...>::Value AcceptsInnerType;
 
 	typedef detail::Spy SpyType;
 

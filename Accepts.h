@@ -8,26 +8,21 @@ namespace sg {
 
 /**
  * Mix-in to accept user specified signals. For each signal type provided, the 
- * mix-in declares a pure virtual function
+ * mix-in connects a user provided method
  *
- *   onSignal(SignalType& signal) = 0;
+ *   Derived::onSignal(SignalType& signal)
  *
- * which an implementation should override. The mix-in holds a receiver that 
- * provides a description of all the callbacks. For each specified signal type, 
- * a class derived from this mix-in can be cast to 
- * sg::detail::AcceptsImpl<SignalType>. For efficient signalling, a slot that is 
- * to be connected to the receiver of this mix-in should be instantiated with 
- * the VirtualCallbackInvoker for AcceptsImpl. The mix-in Provides<...> does 
- * that already.
+ * which a concrete class should implement. The mix-in holds a receiver that 
+ * provides a description of all the callbacks.
  */
-template <typename ... Signals>
-class Accepts : public detail::AcceptsRec<Signals...> {
+template <typename Derived, typename ... Signals>
+class Accepts : public detail::AcceptsRec<Derived, Signals...> {
 
 protected:
 
 	Accepts() {
 
-		detail::AcceptsRec<Signals...>::collectCallbacks(_receiver);
+		detail::AcceptsRec<Derived, Signals...>::collectCallbacks(_receiver);
 	}
 
 	chr::Receiver& getReceiver() { return _receiver; }

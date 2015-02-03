@@ -6,49 +6,53 @@
 namespace sg {
 namespace detail {
 
-template <typename SignalType>
+template <typename Derived, typename SignalType>
 class AcceptsImpl {
-
-public:
-
-	virtual void onSignal(SignalType&) = 0;
 
 protected:
 
 	void collectCallbacks(chr::Receiver& receiver) {
 
-		receiver.registerCallback<SignalType, AcceptsImpl<SignalType>, &AcceptsImpl<SignalType>::onSignal>(this);
+		receiver.registerCallback<SignalType, AcceptsImpl<Derived, SignalType>, &AcceptsImpl<Derived, SignalType>::__onSignal>(this);
+	}
+
+private:
+
+	inline void __onSignal(SignalType& signal) {
+
+		// directly forward to the Derived::onSignal method
+		static_cast<Derived*>(this)->onSignal(signal);
 	}
 };
 
 // recursive inheritance
-template <typename SignalType, typename ... Rest>
-class AcceptsRec : public AcceptsImpl<SignalType>, public AcceptsRec<Rest...> {
+template <typename Derived, typename SignalType, typename ... Rest>
+class AcceptsRec : public AcceptsImpl<Derived, SignalType>, public AcceptsRec<Derived, Rest...> {
 
 protected:
 
 	void collectCallbacks(chr::Receiver& reciever) {
 
-		AcceptsImpl<SignalType>::collectCallbacks(reciever);
-		AcceptsRec<Rest...>::collectCallbacks(reciever);
+		AcceptsImpl<Derived, SignalType>::collectCallbacks(reciever);
+		AcceptsRec<Derived, Rest...>::collectCallbacks(reciever);
 	}
 };
 
 // last on in inheritance chain
-template <typename SignalType>
-class AcceptsRec<SignalType> : public AcceptsImpl<SignalType> {
+template <typename Derived, typename SignalType>
+class AcceptsRec<Derived, SignalType> : public AcceptsImpl<Derived, SignalType> {
 
 protected:
 
 	void collectCallbacks(chr::Receiver& reciever) {
 
-		AcceptsImpl<SignalType>::collectCallbacks(reciever);
+		AcceptsImpl<Derived, SignalType>::collectCallbacks(reciever);
 	}
 };
 
 // specialisation
-template <>
-class AcceptsRec<Nothing> {
+template <typename Derived>
+class AcceptsRec<Derived, Nothing> {
 
 protected:
 

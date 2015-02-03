@@ -8,16 +8,16 @@
 
 namespace sg {
 
-template <typename ... Params>
+template <typename Derived, typename ... Params>
 class Agent :
 	public detail::AgentBase,
 	public detail::ParamDefault<Provides<Nothing>, Params...>::Value,
-	public detail::ParamDefault<Accepts<Nothing>, Params...>::Value {
+	public detail::ParamDefault<Accepts<Derived, Nothing>, Params...>::Value {
 
 private:
 
-	typedef typename detail::ParamDefault<Provides<Nothing>, Params...>::Value ProvideSignals;
-	typedef typename detail::ParamDefault<Accepts<Nothing>, Params...>::Value  AcceptSignals;
+	typedef typename detail::ParamDefault<Provides<Nothing>, Params...>::Value          ProvideSignals;
+	typedef typename detail::ParamDefault<Accepts<Derived, Nothing>, Params...>::Value  AcceptSignals;
 
 public:
 

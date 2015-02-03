@@ -6,49 +6,53 @@
 namespace sg {
 namespace detail {
 
-template <typename SignalType>
+template <typename Derived, typename SignalType>
 class AcceptsInnerImpl {
-
-public:
-
-	virtual void onInnerSignal(SignalType&) = 0;
 
 protected:
 
 	void collectCallbacks(chr::Receiver& receiver) {
 
-		receiver.registerCallback<SignalType, AcceptsInnerImpl<SignalType>, &AcceptsInnerImpl<SignalType>::onInnerSignal>(this);
+		receiver.registerCallback<SignalType, AcceptsInnerImpl<Derived, SignalType>, &AcceptsInnerImpl<Derived, SignalType>::__onInnerSignal>(this);
+	}
+
+private:
+
+	inline void __onInnerSignal(SignalType& signal) {
+
+		// directly forward to the Derived::onInnerSignal method
+		static_cast<Derived*>(this)->onInnerSignal(signal);
 	}
 };
 
 // recursive inheritance
-template <typename SignalType, typename ... Rest>
-class AcceptsInnerRec : public AcceptsInnerImpl<SignalType>, public AcceptsInnerRec<Rest...> {
+template <typename Derived, typename SignalType, typename ... Rest>
+class AcceptsInnerRec : public AcceptsInnerImpl<Derived, SignalType>, public AcceptsInnerRec<Derived, Rest...> {
 
 protected:
 
 	void collectCallbacks(chr::Receiver& reciever) {
 
-		AcceptsInnerImpl<SignalType>::collectCallbacks(reciever);
-		AcceptsInnerRec<Rest...>::collectCallbacks(reciever);
+		AcceptsInnerImpl<Derived, SignalType>::collectCallbacks(reciever);
+		AcceptsInnerRec<Derived, Rest...>::collectCallbacks(reciever);
 	}
 };
 
 // last on in inheritance chain
-template <typename SignalType>
-class AcceptsInnerRec<SignalType> : public AcceptsInnerImpl<SignalType> {
+template <typename Derived, typename SignalType>
+class AcceptsInnerRec<Derived, SignalType> : public AcceptsInnerImpl<Derived, SignalType> {
 
 protected:
 
 	void collectCallbacks(chr::Receiver& reciever) {
 
-		AcceptsInnerImpl<SignalType>::collectCallbacks(reciever);
+		AcceptsInnerImpl<Derived, SignalType>::collectCallbacks(reciever);
 	}
 };
 
 // specialisation
-template <>
-class AcceptsInnerRec<Nothing> {
+template <typename Derived>
+class AcceptsInnerRec<Derived, Nothing> {
 
 protected:
 
