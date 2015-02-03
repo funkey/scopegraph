@@ -3,7 +3,6 @@
 
 #include <cohear/Slot.h>
 #include <scopegraph/Signals.h>
-#include "AcceptsImpl.h"
 
 namespace sg {
 namespace detail {

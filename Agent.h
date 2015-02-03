@@ -3,6 +3,7 @@
 
 #include "Provides.h"
 #include "Accepts.h"
+#include "detail/AcceptsImpl.h"
 #include "detail/AgentBase.h"
 #include "detail/ParamDefault.h"
 
@@ -12,12 +13,12 @@ template <typename Derived, typename ... Params>
 class Agent :
 	public detail::AgentBase,
 	public detail::ParamDefault<Provides<Nothing>, Params...>::Value,
-	public detail::ParamDefault<Accepts<Derived, Nothing>, Params...>::Value {
+	public detail::AcceptsImpl<Derived, typename detail::ParamDefault<Accepts<>, Params...>::Value> {
 
 private:
 
-	typedef typename detail::ParamDefault<Provides<Nothing>, Params...>::Value          ProvideSignals;
-	typedef typename detail::ParamDefault<Accepts<Derived, Nothing>, Params...>::Value  AcceptSignals;
+	typedef typename detail::ParamDefault<Provides<Nothing>, Params...>::Value                       ProvideSignals;
+	typedef detail::AcceptsImpl<Derived, typename detail::ParamDefault<Accepts<>, Params...>::Value> AcceptSignals;
 
 public:
 

@@ -7,10 +7,11 @@ namespace sg {
 namespace detail {
 
 class Spy : public Agent<
+		Spy,
 		Accepts<AddAgent>
 > {
 
-private:
+public:
 
 	void onSignal(AddAgent& /*signal*/) {/*TODO*/}
 };

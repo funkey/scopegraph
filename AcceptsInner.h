@@ -1,7 +1,7 @@
 #ifndef SCOPEGRAPH_ACCEPTS_INNER_H__
 #define SCOPEGRAPH_ACCEPTS_INNER_H__
 
-#include "detail/AcceptsInnerImpl.h"
+#include "Signals.h"
 
 namespace sg {
 
@@ -14,13 +14,13 @@ namespace sg {
  * which a concrete class should implement. The mix-in uses the receiver of the 
  * scope's spy, which is introduced via init().
  */
-template <typename Derived, typename ... Signals>
-class AcceptsInner : public detail::AcceptsInnerRec<Derived, Signals...> {
+template <typename SignalType = Nothing, typename ... Rest>
+class AcceptsInner {
 
-protected:
+public:
 
-	template <typename SpyType>
-	void init(SpyType& spy) { detail::AcceptsInnerRec<Derived, Signals...>::collectCallbacks(spy.getReceiver()); }
+	typedef SignalType       Head;
+	typedef AcceptsInner<Rest...> Tail;
 };
 
 } // namespace sg

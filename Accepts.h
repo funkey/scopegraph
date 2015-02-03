@@ -1,8 +1,7 @@
 #ifndef SCOPEGRAPH_ACCEPTS_H__
 #define SCOPEGRAPH_ACCEPTS_H__
 
-#include <cohear/Receiver.h>
-#include "detail/AcceptsImpl.h"
+#include "Signals.h"
 
 namespace sg {
 
@@ -15,21 +14,13 @@ namespace sg {
  * which a concrete class should implement. The mix-in holds a receiver that 
  * provides a description of all the callbacks.
  */
-template <typename Derived, typename ... Signals>
-class Accepts : public detail::AcceptsRec<Derived, Signals...> {
+template <typename SignalType = Nothing, typename ... Rest>
+class Accepts {
 
-protected:
+public:
 
-	Accepts() {
-
-		detail::AcceptsRec<Derived, Signals...>::collectCallbacks(_receiver);
-	}
-
-	chr::Receiver& getReceiver() { return _receiver; }
-
-private:
-
-	chr::Receiver _receiver;
+	typedef SignalType       Head;
+	typedef Accepts<Rest...> Tail;
 };
 
 } // namespace sg

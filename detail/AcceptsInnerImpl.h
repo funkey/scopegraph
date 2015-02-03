@@ -6,14 +6,20 @@
 namespace sg {
 namespace detail {
 
-template <typename Derived, typename SignalType>
-class AcceptsInnerImpl {
+// for each SignalType in AcceptsTypes
+template <typename Derived, typename AcceptsTypes>
+class AcceptsInnerImpl : public AcceptsInnerImpl<Derived, typename AcceptsTypes::Tail> {
 
 protected:
 
-	void collectCallbacks(chr::Receiver& receiver) {
+	typedef typename AcceptsTypes::Head SignalType;
 
-		receiver.registerCallback<SignalType, AcceptsInnerImpl<Derived, SignalType>, &AcceptsInnerImpl<Derived, SignalType>::__onInnerSignal>(this);
+	template <typename SpyType>
+	void init(SpyType& spy) {
+
+		spy.getReceiver().template registerCallback<SignalType, AcceptsInnerImpl<Derived, AcceptsTypes>, &AcceptsInnerImpl<Derived, AcceptsTypes>::__onInnerSignal>(this);
+
+		AcceptsInnerImpl<Derived, typename AcceptsTypes::Tail>::init(spy);
 	}
 
 private:
@@ -25,38 +31,14 @@ private:
 	}
 };
 
-// recursive inheritance
-template <typename Derived, typename SignalType, typename ... Rest>
-class AcceptsInnerRec : public AcceptsInnerImpl<Derived, SignalType>, public AcceptsInnerRec<Derived, Rest...> {
-
-protected:
-
-	void collectCallbacks(chr::Receiver& reciever) {
-
-		AcceptsInnerImpl<Derived, SignalType>::collectCallbacks(reciever);
-		AcceptsInnerRec<Derived, Rest...>::collectCallbacks(reciever);
-	}
-};
-
 // last on in inheritance chain
-template <typename Derived, typename SignalType>
-class AcceptsInnerRec<Derived, SignalType> : public AcceptsInnerImpl<Derived, SignalType> {
-
-protected:
-
-	void collectCallbacks(chr::Receiver& reciever) {
-
-		AcceptsInnerImpl<Derived, SignalType>::collectCallbacks(reciever);
-	}
-};
-
-// specialisation
 template <typename Derived>
-class AcceptsInnerRec<Derived, Nothing> {
+class AcceptsInnerImpl<Derived, AcceptsInner<Nothing>> {
 
 protected:
 
-	void collectCallbacks(chr::Receiver&) {}
+	template <typename SpyType>
+	void init(SpyType&) {}
 };
 
 } // namespace detail
