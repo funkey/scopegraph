@@ -6,7 +6,7 @@
 namespace sg {
 
 /**
- * Mix-in for user specified signals. For each signal, a
+ * Mix-in for agents to emit user specified signals. For each signal, a
  *
  *   void send(SignalType& signal);
  *
@@ -15,8 +15,25 @@ namespace sg {
  *   template <typename SignalType, typename ... Args>
  *   void send(Args ... args);
  *
- * can be used to generate and send a signal. This mix-in holds a Sender, for 
- * which all signal slots are automatically registered on construction.
+ * can be used to generate and send a signal. Example usage:
+ *
+ *   class MrSmith :
+ *     public Agent<
+ *       MrSmith,
+ *       Accepts<NewMission>,
+ *       Provides<ImOnIt, ImBusy>
+ *   > {
+ *
+ *   public:
+ *
+ *     void onSignal(NewMission& signal) {
+ *
+ *       if (_idle)
+ *         send<ImOnIt>();
+ *       else
+ *         send<ImBusy>();
+ *     }
+ *   };
  */
 template <typename SignalType = Nothing, typename ... Rest>
 class Provides {

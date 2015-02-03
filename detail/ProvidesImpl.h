@@ -33,7 +33,7 @@ private:
 
 // last on in inheritance chain
 template <typename Derived>
-class ProvidesImpl<Derived, Provides<Nothing>> {
+class ProvidesImpl<Derived, Provides<>> {
 
 protected:
 

@@ -12,8 +12,12 @@ protected:
 
 	typedef typename AcceptsTypes::Head SignalType;
 
+#ifdef __clang__
 	AcceptsImpl() {
 
+		// clang doesn't like function pointers to derived classes as template 
+		// arguments (yet) -- therefore, we need to pass to __onSignal, a member 
+		// of this class, which does the work.
 		static_cast<Derived*>(this)->getReceiver().template registerCallback<SignalType, AcceptsImpl<Derived, AcceptsTypes>, &AcceptsImpl<Derived, AcceptsTypes>::__onSignal>(this);
 	}
 
@@ -24,6 +28,12 @@ private:
 		// directly forward to the Derived::onSignal method
 		static_cast<Derived*>(this)->onSignal(signal);
 	}
+#else
+	AcceptsImpl() {
+
+		static_cast<Derived*>(this)->getReceiver().template registerCallback<SignalType, Derived, &Derived::onSignal>(static_cast<Derived*>(this));
+	}
+#endif
 };
 
 // last on in inheritance chain

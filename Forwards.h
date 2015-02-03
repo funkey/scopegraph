@@ -1,56 +1,27 @@
 #ifndef SCOPEGRAPH_FORWARDS_H__
 #define SCOPEGRAPH_FORWARDS_H__
 
-#include <cohear/Tunnel.h>
+#include "Signals.h"
 
 namespace sg {
 
-// recursive inheritance
-template <typename SignalType, typename ... Rest>
-class Forwards : public Forwards<Rest...> {
+/**
+ * Mix-in for scopes to forward user specified signals. Each signal compatible 
+ * with any of the given signals will be passed on from the parent scope to the 
+ * agents (and therefore also scopes) of this scope. Example usage:
+ *
+ *   class TunnelScope : public Scope<
+ *     TunnelScope,
+ *     Forwards<Signal> // i.e., all signals
+ *   > {};
+ */
+template <typename SignalType = Nothing, typename ... Rest>
+class Forwards {
 
 public:
 
-	template <typename ScopeType>
-	void init(ScopeType& scope) {
-
-		scope.getSpy().getSender().registerSlot(_tunnel.getSlot());
-		scope.getReceiver().registerCallback(_tunnel.getCallback());
-
-		Forwards<Rest...>::init(scope);
-	}
-
-private:
-
-	chr::Tunnel<SignalType> _tunnel;
-};
-
-// base case
-template <typename SignalType>
-class Forwards<SignalType> {
-
-public:
-
-	template <typename ScopeType>
-	void init(ScopeType& scope) {
-
-		scope.getSpy().getSender().registerSlot(_tunnel.getSlot());
-		scope.getReceiver().registerCallback(_tunnel.getCallback());
-	}
-
-private:
-
-	chr::Tunnel<SignalType> _tunnel;
-};
-
-// specialisation
-template <>
-class Forwards<Nothing> {
-
-public:
-
-	template <typename ScopeType>
-	void init(ScopeType&) {}
+	typedef SignalType        Head;
+	typedef Forwards<Rest...> Tail;
 };
 
 } // namespace sg

@@ -1,56 +1,27 @@
 #ifndef SCOPEGRAPH_BACKWARDS_H__
 #define SCOPEGRAPH_BACKWARDS_H__
 
-#include <cohear/Tunnel.h>
+#include "Signals.h"
 
 namespace sg {
 
-// recursive inheritance
-template <typename SignalType, typename ... Rest>
-class Backwards : public Backwards<Rest...> {
+/**
+ * Mix-in for scopes to backward user specified signals. Each signal compatible 
+ * to any of the given signals will be passed from this scope to the parent 
+ * scope.
+ *
+ *   class PainterSet : public Scope<
+ *     PainterSet,
+ *     Backwards<NeedRedraw>
+ *   > {};
+ */
+template <typename SignalType = Nothing, typename ... Rest>
+class Backwards {
 
 public:
 
-	template <typename ScopeType>
-	void init(ScopeType& scope) {
-
-		scope.getSpy().getReceiver().registerCallback(_tunnel.getCallback());
-		scope.getSender().registerSlot(_tunnel.getSlot());
-
-		Backwards<Rest...>::init(scope);
-	}
-
-private:
-
-	chr::Tunnel<SignalType> _tunnel;
-};
-
-// base case
-template <typename SignalType>
-class Backwards<SignalType> {
-
-public:
-
-	template <typename ScopeType>
-	void init(ScopeType& scope) {
-
-		scope.getSpy().getReceiver().registerCallback(_tunnel.getCallback());
-		scope.getSender().registerSlot(_tunnel.getSlot());
-	}
-
-private:
-
-	chr::Tunnel<SignalType> _tunnel;
-};
-
-// specialisation
-template <>
-class Backwards<Nothing> {
-
-public:
-
-	template <typename ScopeType>
-	void init(ScopeType&) {}
+	typedef SignalType         Head;
+	typedef Backwards<Rest...> Tail;
 };
 
 } // namespace sg

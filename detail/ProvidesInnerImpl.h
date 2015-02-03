@@ -1,26 +1,23 @@
 #ifndef SCOPEGRAPH_DETAIL_PROVIDES_INNER_IMPL_H__
 #define SCOPEGRAPH_DETAIL_PROVIDES_INNER_IMPL_H__
 
-#include <cohear/Sender.h>
-#include <scopegraph/Signals.h>
-#include "AcceptsImpl.h"
-
 namespace sg {
 namespace detail {
 
-/**
- * Basically the same as Provides{Impl,Rec}, only with sendInner() instead of of 
- * send() methods.
- */
-
-template <typename SignalType>
-class ProvidesInnerImpl {
+// for each SignalType in ProvidesTypes
+template <typename Derived, typename ProvidesTypes>
+class ProvidesInnerImpl : public ProvidesInnerImpl<Derived, typename ProvidesTypes::Tail> {
 
 protected:
 
-	void collectSlots(chr::Sender& sender) {
+	typedef typename ProvidesTypes::Head SignalType;
 
-		sender.registerSlot(_slot);
+	template <typename SpyType>
+	void init(SpyType& spy) {
+
+		spy.getSender().registerSlot(_slot);
+
+		ProvidesInnerImpl<Derived, typename ProvidesTypes::Tail>::init(spy);
 	}
 
 	inline void sendInner(SignalType& signal) {
@@ -28,48 +25,21 @@ protected:
 		_slot(signal);
 	}
 
+	using ProvidesInnerImpl<Derived, typename ProvidesTypes::Tail>::sendInner;
+
 private:
 
 	chr::Slot<SignalType> _slot;
 };
 
-// recursive inheritance
-template <typename SignalType, typename ... Rest>
-class ProvidesInnerRec : public ProvidesInnerImpl<SignalType>, public ProvidesInnerRec<Rest...> {
+// last on in inheritance chain
+template <typename Derived>
+class ProvidesInnerImpl<Derived, ProvidesInner<>> {
 
 protected:
 
-	void collectSlots(chr::Sender& sender) {
-
-		ProvidesInnerImpl<SignalType>::collectSlots(sender);
-		ProvidesInnerRec<Rest...>::collectSlots(sender);
-	}
-
-	using ProvidesInnerImpl<SignalType>::sendInner;
-	using ProvidesInnerRec<Rest...>::sendInner;
-};
-
-// base case
-template <typename SignalType>
-class ProvidesInnerRec<SignalType> : public ProvidesInnerImpl<SignalType> {
-
-protected:
-
-	void collectSlots(chr::Sender& sender) {
-
-		ProvidesInnerImpl<SignalType>::collectSlots(sender);
-	}
-
-	using ProvidesInnerImpl<SignalType>::sendInner;
-};
-
-// specialisation
-template <>
-class ProvidesInnerRec<Nothing> {
-
-protected:
-
-	void collectSlots(chr::Sender&) {}
+	template <typename SpyType>
+	void init(SpyType&) {}
 
 	inline void sendInner(Nothing&) {}
 };

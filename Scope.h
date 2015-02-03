@@ -3,11 +3,13 @@
 
 #include <set>
 #include "Agent.h"
-#include "Backwards.h"
 #include "Forwards.h"
-#include "AcceptsInner.h"
+#include "Backwards.h"
 #include "ProvidesInner.h"
-#include "Signals.h"
+#include "AcceptsInner.h"
+#include "detail/ForwardsImpl.h"
+#include "detail/BackwardsImpl.h"
+#include "detail/ProvidesInnerImpl.h"
 #include "detail/AcceptsInnerImpl.h"
 #include "detail/Spy.h"
 #include "detail/ParamDefault.h"
@@ -16,23 +18,50 @@ namespace sg {
 
 template <typename Derived, typename ... Params>
 class Scope :
-	public detail::ParamDefault<Backwards<Nothing>,Params...>::Value,
-	public detail::ParamDefault<Forwards<Signal>,Params...>::Value,
-	public detail::ParamDefault<ProvidesInner<Nothing>,Params...>::Value,
-	public detail::AcceptsInnerImpl<Derived, typename detail::ParamDefault<AcceptsInner<Nothing>,Params...>::Value>,
+	public detail::ForwardsImpl<
+			Derived,
+			typename detail::ParamDefault<Forwards<Signal>,Params...>::Value
+	>,
+	public detail::BackwardsImpl<
+			Derived,
+			typename detail::ParamDefault<Backwards<>,Params...>::Value
+	>,
+	public detail::ProvidesInnerImpl<
+			Derived,
+			typename detail::ParamDefault<ProvidesInner<>,Params...>::Value
+	>,
+	public detail::AcceptsInnerImpl<
+			Derived,
+			typename detail::ParamDefault<AcceptsInner<>,Params...>::Value
+	>,
 	public Agent<
 		Derived,
-		typename detail::ParamDefault<Provides<Nothing>,Params...>::Value,
+		typename detail::ParamDefault<Provides<>,Params...>::Value,
 		typename detail::ParamDefault<Accepts<>,Params...>::Value
 	>
 	{
 
 private:
 
-	typedef typename detail::ParamDefault<Forwards<Signal>,Params...>::Value                                         ForwardsType;
-	typedef typename detail::ParamDefault<Backwards<Nothing>,Params...>::Value                                       BackwardsType;
-	typedef typename detail::ParamDefault<ProvidesInner<Nothing>,Params...>::Value                                   ProvidesInnerType;
-	typedef detail::AcceptsInnerImpl<Derived, typename detail::ParamDefault<AcceptsInner<Nothing>,Params...>::Value> AcceptsInnerType;
+	typedef detail::ForwardsImpl<
+			Derived,
+			typename detail::ParamDefault<Forwards<Signal>,Params...>::Value
+	> ForwardsType;
+
+	typedef detail::BackwardsImpl<
+			Derived,
+			typename detail::ParamDefault<Backwards<>,Params...>::Value
+	> BackwardsType;
+
+	typedef detail::ProvidesInnerImpl<
+			Derived,
+			typename detail::ParamDefault<ProvidesInner<>,Params...>::Value
+	> ProvidesInnerType;
+
+	typedef detail::AcceptsInnerImpl<
+			Derived,
+			typename detail::ParamDefault<AcceptsInner<>,Params...>::Value
+	> AcceptsInnerType;
 
 	typedef detail::Spy SpyType;
 
@@ -90,6 +119,13 @@ public:
 protected:
 
 	using ProvidesInnerType::sendInner;
+
+	template <typename SignalType, typename ... Args>
+	void sendInner(Args ... args) {
+
+		SignalType signal(args...);
+		sendInner(signal);
+	}
 
 private:
 

@@ -6,13 +6,30 @@
 namespace sg {
 
 /**
- * Mix-in to accept user specified signals. For each signal type provided, the 
- * mix-in connects a user provided method
+ * Mix-in for agents to accept user specified signals. For each signal type 
+ * provided, the mix-in connects a user provided method
  *
- *   Derived::onSignal(SignalType& signal)
+ *   void Derived::onSignal(SignalType& signal),
  *
- * which a concrete class should implement. The mix-in holds a receiver that 
- * provides a description of all the callbacks.
+ * which a concrete class should implement. Example usage:
+ *
+ *   class MrSmith :
+ *     public Agent<
+ *       MrSmith,
+ *       Accepts<NewMission>,
+ *       Provides<ImOnIt, ImBusy>
+ *   > {
+ *
+ *   public:
+ *
+ *     void onSignal(NewMission& signal) {
+ *
+ *       if (_idle)
+ *         send<ImOnIt>();
+ *       else
+ *         send<ImBusy>();
+ *     }
+ *   };
  */
 template <typename SignalType = Nothing, typename ... Rest>
 class Accepts {
