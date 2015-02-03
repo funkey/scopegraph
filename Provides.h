@@ -1,8 +1,7 @@
 #ifndef SCOPEGRAPH_PROVIDES_H__
 #define SCOPEGRAPH_PROVIDES_H__
 
-#include <cohear/Sender.h>
-#include "detail/ProvidesImpl.h"
+#include "Signals.h"
 
 namespace sg {
 
@@ -19,36 +18,13 @@ namespace sg {
  * can be used to generate and send a signal. This mix-in holds a Sender, for 
  * which all signal slots are automatically registered on construction.
  */
-template <typename ... Signals>
-class Provides : public detail::ProvidesRec<Signals...> {
+template <typename SignalType = Nothing, typename ... Rest>
+class Provides {
 
-protected:
+public:
 
-	Provides() {
-
-		detail::ProvidesRec<Signals...>::collectSlots(_sender);
-	}
-
-	/**
-	 * Get the sender that holds the slots for the requested signals.
-	 */
-	chr::Sender& getSender() {
-
-		return _sender;
-	}
-
-	using detail::ProvidesRec<Signals...>::send;
-
-	template <typename SignalType, typename ... Args>
-	void send(Args ... args) {
-
-		SignalType signal(args ...);
-		send(signal);
-	}
-
-private:
-
-	chr::Sender _sender;
+	typedef SignalType        Head;
+	typedef Provides<Rest...> Tail;
 };
 
 } // namespace sg

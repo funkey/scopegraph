@@ -23,10 +23,15 @@ public:
 		other.getSender().disconnect(getReceiver());
 	}
 
-protected:
+public:
 
-	virtual chr::Sender&   getSender()   = 0;
-	virtual chr::Receiver& getReceiver() = 0;
+	chr::Receiver& getReceiver() { return _receiver; }
+	chr::Sender&   getSender()   { return _sender; }
+
+private:
+
+	chr::Receiver _receiver;
+	chr::Sender   _sender;
 };
 
 } // namespace detail

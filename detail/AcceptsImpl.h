@@ -1,8 +1,6 @@
 #ifndef SCOPEGRAPH_DETAIL_ACCEPTS_IMPL_H__
 #define SCOPEGRAPH_DETAIL_ACCEPTS_IMPL_H__
 
-#include <cohear/Receiver.h>
-
 namespace sg {
 namespace detail {
 
@@ -16,7 +14,7 @@ protected:
 
 	AcceptsImpl() {
 
-		this->getReceiver().template registerCallback<SignalType, AcceptsImpl<Derived, AcceptsTypes>, &AcceptsImpl<Derived, AcceptsTypes>::__onSignal>(this);
+		static_cast<Derived*>(this)->getReceiver().template registerCallback<SignalType, AcceptsImpl<Derived, AcceptsTypes>, &AcceptsImpl<Derived, AcceptsTypes>::__onSignal>(this);
 	}
 
 private:
@@ -30,18 +28,7 @@ private:
 
 // last on in inheritance chain
 template <typename Derived>
-class AcceptsImpl<Derived, Accepts<Nothing>> {
-
-protected:
-
-	void collectCallbacks(chr::Receiver&) {}
-
-	chr::Receiver& getReceiver() { return _receiver; }
-
-private:
-
-	chr::Receiver _receiver;
-};
+class AcceptsImpl<Derived, Accepts<Nothing>> {};
 
 } // namespace detail
 } // namespace sg

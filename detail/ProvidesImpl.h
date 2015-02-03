@@ -2,19 +2,21 @@
 #define SCOPEGRAPH_DETAIL_PROVIDES_IMPL_H__
 
 #include <cohear/Slot.h>
-#include <scopegraph/Signals.h>
 
 namespace sg {
 namespace detail {
 
-template <typename SignalType>
-class ProvidesImpl {
+// for each SignalType in ProvidesTypes
+template <typename Derived, typename ProvidesTypes>
+class ProvidesImpl : public ProvidesImpl<Derived, typename ProvidesTypes::Tail> {
 
 protected:
 
-	void collectSlots(chr::Sender& sender) {
+	typedef typename ProvidesTypes::Head SignalType;
 
-		sender.registerSlot(_slot);
+	ProvidesImpl() {
+
+		static_cast<Derived*>(this)->getSender().registerSlot(_slot);
 	}
 
 	inline void send(SignalType& signal) {
@@ -22,50 +24,20 @@ protected:
 		_slot(signal);
 	}
 
+	using ProvidesImpl<Derived, typename ProvidesTypes::Tail>::send;
+
 private:
 
 	chr::Slot<SignalType> _slot;
 };
 
-// recursive inheritance
-template <typename SignalType, typename ... Rest>
-class ProvidesRec : public ProvidesImpl<SignalType>, public ProvidesRec<Rest...> {
+// last on in inheritance chain
+template <typename Derived>
+class ProvidesImpl<Derived, Provides<Nothing>> {
 
 protected:
 
-	void collectSlots(chr::Sender& sender) {
-
-		ProvidesImpl<SignalType>::collectSlots(sender);
-		ProvidesRec<Rest...>::collectSlots(sender);
-	}
-
-	using ProvidesImpl<SignalType>::send;
-	using ProvidesRec<Rest...>::send;
-};
-
-// base case
-template <typename SignalType>
-class ProvidesRec<SignalType> : public ProvidesImpl<SignalType> {
-
-protected:
-
-	void collectSlots(chr::Sender& sender) {
-
-		ProvidesImpl<SignalType>::collectSlots(sender);
-	}
-
-	using ProvidesImpl<SignalType>::send;
-};
-
-// specialisation
-template <>
-class ProvidesRec<Nothing> {
-
-protected:
-
-	void collectSlots(chr::Sender&) {}
-
-	inline void send(Nothing&) {}
+	void send(Nothing&) {}
 };
 
 } // namespace detail
