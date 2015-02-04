@@ -6,15 +6,7 @@
 namespace sg {
 namespace detail {
 
-class Spy : public Agent<
-		Spy,
-		Accepts<AddAgent>
-> {
-
-public:
-
-	void onSignal(AddAgent& /*signal*/) {/*TODO*/}
-};
+class Spy : public Agent<Spy> {};
 
 } // namespace detail
 } // namespace sg

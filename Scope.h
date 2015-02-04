@@ -16,6 +16,12 @@
 
 namespace sg {
 
+/**
+ * Signals, that each scope accepts from its own agents (therefore "inner" 
+ * signals).  The scope implements the callback itself (therefore "internal").
+ */
+typedef AcceptsInner<AddAgent> ScopeInternalInnerAccepts;
+
 template <typename Derived, typename ... Params>
 class Scope :
 	public detail::ForwardsImpl<
@@ -30,9 +36,15 @@ class Scope :
 			Derived,
 			typename detail::ParamDefault<ProvidesInner<>,Params...>::Value
 	>,
+	// user defined inner signals
 	public detail::AcceptsInnerImpl<
 			Derived,
 			typename detail::ParamDefault<AcceptsInner<>,Params...>::Value
+	>,
+	// internal inner signals
+	public detail::AcceptsInnerImpl<
+			Scope<Derived, Params...>,
+			ScopeInternalInnerAccepts
 	>,
 	public Agent<
 		Derived,
@@ -63,6 +75,11 @@ private:
 			typename detail::ParamDefault<AcceptsInner<>,Params...>::Value
 	> AcceptsInnerType;
 
+	typedef detail::AcceptsInnerImpl<
+			Scope<Derived, Params...>,
+			ScopeInternalInnerAccepts
+	> InternalAcceptsInnerType;
+
 	typedef detail::Spy SpyType;
 
 public:
@@ -73,6 +90,7 @@ public:
 		BackwardsType::init(*this);
 		ProvidesInnerType::init(_spy);
 		AcceptsInnerType::init(_spy);
+		InternalAcceptsInnerType::init(_spy);
 	}
 
 	/**
@@ -108,12 +126,25 @@ public:
 	}
 
 	/**
+	 * Get the number of agents in this scope.
+	 */
+	std::size_t size() { return _agents.size(); }
+
+	/**
 	 * Get the spy of this scope. This is an agent that lives in this scope and 
 	 * provides communication with the outside world, e.g., the parent scope.
 	 */
 	SpyType& getSpy() {
 
 		return _spy;
+	}
+
+	/**
+	 * Internal signal callback to add an agent.
+	 */
+	void onInnerSignal(AddAgent& signal) {
+
+		add(signal.getAgent());
 	}
 
 protected:

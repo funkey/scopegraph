@@ -19,7 +19,7 @@ class AcceptsInner {
 
 public:
 
-	typedef SignalType       Head;
+	typedef SignalType            Head;
 	typedef AcceptsInner<Rest...> Tail;
 };
 
