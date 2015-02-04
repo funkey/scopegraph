@@ -3,12 +3,12 @@
 
 #include <set>
 #include "Agent.h"
-#include "Forwards.h"
-#include "Backwards.h"
+#include "PassesDown.h"
+#include "PassesUp.h"
 #include "ProvidesInner.h"
 #include "AcceptsInner.h"
-#include "detail/ForwardsImpl.h"
-#include "detail/BackwardsImpl.h"
+#include "detail/PassesDownImpl.h"
+#include "detail/PassesUpImpl.h"
 #include "detail/ProvidesInnerImpl.h"
 #include "detail/AcceptsInnerImpl.h"
 #include "detail/Spy.h"
@@ -24,13 +24,13 @@ typedef AcceptsInner<AddAgent> ScopeInternalInnerAccepts;
 
 template <typename Derived, typename ... Params>
 class Scope :
-	public detail::ForwardsImpl<
+	public detail::PassesDownImpl<
 			Derived,
-			typename detail::ParamDefault<Forwards<Signal>,Params...>::Value
+			typename detail::ParamDefault<PassesDown<Signal>,Params...>::Value
 	>,
-	public detail::BackwardsImpl<
+	public detail::PassesUpImpl<
 			Derived,
-			typename detail::ParamDefault<Backwards<>,Params...>::Value
+			typename detail::ParamDefault<PassesUp<>,Params...>::Value
 	>,
 	public detail::ProvidesInnerImpl<
 			Derived,
@@ -55,15 +55,15 @@ class Scope :
 
 private:
 
-	typedef detail::ForwardsImpl<
+	typedef detail::PassesDownImpl<
 			Derived,
-			typename detail::ParamDefault<Forwards<Signal>,Params...>::Value
-	> ForwardsType;
+			typename detail::ParamDefault<PassesDown<Signal>,Params...>::Value
+	> PassesDownType;
 
-	typedef detail::BackwardsImpl<
+	typedef detail::PassesUpImpl<
 			Derived,
-			typename detail::ParamDefault<Backwards<>,Params...>::Value
-	> BackwardsType;
+			typename detail::ParamDefault<PassesUp<>,Params...>::Value
+	> PassesUpType;
 
 	typedef detail::ProvidesInnerImpl<
 			Derived,
@@ -86,8 +86,8 @@ public:
 
 	Scope() {
 
-		ForwardsType::init(*this);
-		BackwardsType::init(*this);
+		PassesDownType::init(*this);
+		PassesUpType::init(*this);
 		ProvidesInnerType::init(_spy);
 		AcceptsInnerType::init(_spy);
 		InternalAcceptsInnerType::init(_spy);

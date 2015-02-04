@@ -1,5 +1,5 @@
-#ifndef SCOPEGRAPH_FORWARDS_H__
-#define SCOPEGRAPH_FORWARDS_H__
+#ifndef SCOPEGRAPH_PASSES_DOWN_H__
+#define SCOPEGRAPH_PASSES_DOWN_H__
 
 #include "Signals.h"
 
@@ -12,19 +12,19 @@ namespace sg {
  *
  *   class TunnelScope : public Scope<
  *     TunnelScope,
- *     Forwards<Signal> // i.e., all signals
+ *     PassesDown<Signal> // i.e., all signals
  *   > {};
  */
 template <typename SignalType = Nothing, typename ... Rest>
-class Forwards {
+class PassesDown {
 
 public:
 
 	typedef SignalType        Head;
-	typedef Forwards<Rest...> Tail;
+	typedef PassesDown<Rest...> Tail;
 };
 
 } // namespace sg
 
-#endif // SCOPEGRAPH_FORWARDS_H__
+#endif // SCOPEGRAPH_PASSES_DOWN_H__
 

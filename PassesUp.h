@@ -1,5 +1,5 @@
-#ifndef SCOPEGRAPH_BACKWARDS_H__
-#define SCOPEGRAPH_BACKWARDS_H__
+#ifndef SCOPEGRAPH_PASSES_UP_H__
+#define SCOPEGRAPH_PASSES_UP_H__
 
 #include "Signals.h"
 
@@ -12,19 +12,19 @@ namespace sg {
  *
  *   class PainterSet : public Scope<
  *     PainterSet,
- *     Backwards<NeedRedraw>
+ *     PassesUp<NeedRedraw>
  *   > {};
  */
 template <typename SignalType = Nothing, typename ... Rest>
-class Backwards {
+class PassesUp {
 
 public:
 
 	typedef SignalType         Head;
-	typedef Backwards<Rest...> Tail;
+	typedef PassesUp<Rest...> Tail;
 };
 
 } // namespace sg
 
-#endif // SCOPEGRAPH_BACKWARDS_H__
+#endif // SCOPEGRAPH_PASSES_UP_H__
 
