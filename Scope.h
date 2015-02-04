@@ -5,10 +5,14 @@
 #include "Agent.h"
 #include "PassesDown.h"
 #include "PassesUp.h"
+#include "FiltersDown.h"
+#include "FiltersUp.h"
 #include "ProvidesInner.h"
 #include "AcceptsInner.h"
 #include "detail/PassesDownImpl.h"
 #include "detail/PassesUpImpl.h"
+#include "detail/FiltersDownImpl.h"
+#include "detail/FiltersUpImpl.h"
 #include "detail/ProvidesInnerImpl.h"
 #include "detail/AcceptsInnerImpl.h"
 #include "detail/Spy.h"
@@ -31,6 +35,14 @@ class Scope :
 	public detail::PassesUpImpl<
 			Derived,
 			typename detail::ParamDefault<PassesUp<>,Params...>::Value
+	>,
+	public detail::FiltersDownImpl<
+			Derived,
+			typename detail::ParamDefault<FiltersDown<>,Params...>::Value
+	>,
+	public detail::FiltersUpImpl<
+			Derived,
+			typename detail::ParamDefault<FiltersUp<>,Params...>::Value
 	>,
 	public detail::ProvidesInnerImpl<
 			Derived,
@@ -65,6 +77,16 @@ private:
 			typename detail::ParamDefault<PassesUp<>,Params...>::Value
 	> PassesUpType;
 
+	typedef detail::FiltersDownImpl<
+			Derived,
+			typename detail::ParamDefault<FiltersDown<>,Params...>::Value
+	> FiltersDownType;
+
+	typedef detail::FiltersUpImpl<
+			Derived,
+			typename detail::ParamDefault<FiltersUp<>,Params...>::Value
+	> FiltersUpType;
+
 	typedef detail::ProvidesInnerImpl<
 			Derived,
 			typename detail::ParamDefault<ProvidesInner<>,Params...>::Value
@@ -88,6 +110,8 @@ public:
 
 		PassesDownType::init(*this);
 		PassesUpType::init(*this);
+		FiltersDownType::init(*this);
+		FiltersUpType::init(*this);
 		ProvidesInnerType::init(_spy);
 		AcceptsInnerType::init(_spy);
 		InternalAcceptsInnerType::init(_spy);
