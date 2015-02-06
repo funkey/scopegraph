@@ -1,6 +1,7 @@
 #ifndef SCOPEGRAPH_SIGNALS_H__
 #define SCOPEGRAPH_SIGNALS_H__
 
+#include <memory>
 #include "detail/AgentBase.h"
 
 namespace sg {
