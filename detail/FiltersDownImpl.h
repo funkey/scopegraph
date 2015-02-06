@@ -24,7 +24,7 @@ protected:
 	void init(ScopeType& scope) {
 
 		scope.getSpy().getSender().registerSlot(_filter.getSlot());
-		scope.getReceiver().registerCallback(_filter.getCallback());
+		scope.getReceiver().registerCallback(_filter.getCallback(), 1 /* group one, i.e., after Accepts signals */);
 
 		FiltersDownImpl<Derived, typename FiltersDownTypes::Tail>::init(scope);
 	}

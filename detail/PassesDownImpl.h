@@ -18,7 +18,7 @@ protected:
 	void init(ScopeType& scope) {
 
 		scope.getSpy().getSender().registerSlot(_tunnel.getSlot());
-		scope.getReceiver().registerCallback(_tunnel.getCallback());
+		scope.getReceiver().registerCallback(_tunnel.getCallback(), 1 /* group one, i.e., after Accepts signals */);
 
 		PassesDownImpl<Derived, typename PassesDownTypes::Tail>::init(scope);
 	}
