@@ -36,6 +36,24 @@ private:
 	std::shared_ptr<detail::AgentBase> _agent;
 };
 
+/**
+ * A signal notifying about an added agent.
+ */
+class AgentAdded : public Signal {
+
+public:
+
+	typedef Signal parent_type;
+
+	AgentAdded(std::shared_ptr<detail::AgentBase> agent) : _agent(agent) {}
+
+	std::shared_ptr<detail::AgentBase> getAgent() { return _agent; }
+
+private:
+
+	std::shared_ptr<detail::AgentBase> _agent;
+};
+
 } // namespace sg
 
 #endif // SCOPEGRAPH_SIGNALS_H__

@@ -17,6 +17,7 @@
 #include "detail/AcceptsInnerImpl.h"
 #include "detail/Spy.h"
 #include "detail/ParamDefault.h"
+#include "meta/Add.h"
 
 namespace sg {
 
@@ -60,7 +61,13 @@ class Scope :
 	>,
 	public Agent<
 		Derived,
-		typename detail::ParamDefault<Provides<>,Params...>::Value,
+		typename meta::Add<
+				Provides,
+				// user specified signals
+				typename detail::ParamDefault<Provides<>,Params...>::Value,
+				// internal signal
+				AgentAdded
+		>::Value,
 		typename detail::ParamDefault<Accepts<>,Params...>::Value
 	>
 	{
@@ -102,6 +109,18 @@ private:
 			ScopeInternalInnerAccepts
 	> InternalAcceptsInnerType;
 
+	typedef Agent<
+		Derived,
+		typename meta::Add<
+				Provides,
+				// user specified signals
+				typename detail::ParamDefault<Provides<>,Params...>::Value,
+				// internal signal
+				AgentAdded
+		>::Value,
+		typename detail::ParamDefault<Accepts<>,Params...>::Value
+	> AgentType;
+
 	typedef detail::Spy SpyType;
 
 public:
@@ -117,6 +136,8 @@ public:
 		InternalAcceptsInnerType::init(_spy);
 	}
 
+	using AgentType::send;
+
 	/**
 	 * Add an agent to this scope. Returns true, if the agent was not added 
 	 * before already.
@@ -128,6 +149,9 @@ public:
 
 		connect(*agent);
 		_agents.insert(agent);
+
+		AgentAdded signal(agent);
+		send(signal);
 
 		return true;
 	}
