@@ -1,8 +1,0 @@
-scopegraph
-==========
-
-scopegraph is a C++ library for scoped signalling. For that, scopes can be
-defined in a directed acyclic graph that indicates subscope relations. Each
-scope can be populated with agents who communicate by sending and receiving
-signals. By default, agents send signals to all agents in their and lower
-scopes and receive signals from all agents in their and higher scopes.
