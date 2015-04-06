@@ -7,14 +7,21 @@
 #include "detail/AcceptsImpl.h"
 #include "detail/AgentBase.h"
 #include "detail/ParamDefault.h"
+#include "meta/Add.h"
 
 namespace sg {
 
 template <typename Derived, typename ... Params>
 class Agent :
 	public detail::AgentBase,
-	public detail::ProvidesImpl<Derived, typename detail::ParamDefault<Provides<>, Params...>::Value>,
-	public detail::AcceptsImpl<Derived, typename detail::ParamDefault<Accepts<>, Params...>::Value> {
+	public detail::ProvidesImpl<
+			Derived,
+			typename detail::ParamDefault<Provides<>, Params...>::Value
+	>,
+	public detail::AcceptsImpl<
+			Derived,
+			typename detail::ParamDefault<Accepts<>, Params...>::Value
+	> {
 
 private:
 

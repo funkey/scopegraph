@@ -2,9 +2,13 @@
 #define SCOPEGRAPH_SIGNALS_H__
 
 #include <memory>
-#include "detail/AgentBase.h"
 
 namespace sg {
+
+// forward declaration
+namespace detail {
+class AgentBase;
+}
 
 /**
  * Base class for all scope-graph signals.

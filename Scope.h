@@ -17,7 +17,6 @@
 #include "detail/AcceptsInnerImpl.h"
 #include "detail/Spy.h"
 #include "detail/ParamDefault.h"
-#include "meta/Add.h"
 
 namespace sg {
 
@@ -61,13 +60,7 @@ class Scope :
 	>,
 	public Agent<
 		Derived,
-		typename meta::Add<
-				Provides,
-				// user specified signals
-				typename detail::ParamDefault<Provides<>,Params...>::Value,
-				// internal signal
-				AgentAdded
-		>::Value,
+		typename detail::ParamDefault<Provides<>,Params...>::Value,
 		typename detail::ParamDefault<Accepts<>,Params...>::Value
 	>
 	{
@@ -111,13 +104,7 @@ private:
 
 	typedef Agent<
 		Derived,
-		typename meta::Add<
-				Provides,
-				// user specified signals
-				typename detail::ParamDefault<Provides<>,Params...>::Value,
-				// internal signal
-				AgentAdded
-		>::Value,
+		typename detail::ParamDefault<Provides<>,Params...>::Value,
 		typename detail::ParamDefault<Accepts<>,Params...>::Value
 	> AgentType;
 
@@ -150,8 +137,7 @@ public:
 		connect(*agent);
 		_agents.insert(agent);
 
-		AgentAdded signal(agent);
-		send(signal);
+		agent->introduceAs(agent);
 
 		return true;
 	}

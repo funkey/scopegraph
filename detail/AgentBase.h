@@ -11,6 +11,11 @@ class AgentBase {
 
 public:
 
+	AgentBase() {
+
+		_sender.registerSlot(_agendAdded);
+	}
+
 	void connect(AgentBase& other) {
 
 		getSender().connect(other.getReceiver());
@@ -23,15 +28,20 @@ public:
 		other.getSender().disconnect(getReceiver());
 	}
 
-public:
-
 	chr::Receiver& getReceiver() { return _receiver; }
 	chr::Sender&   getSender()   { return _sender; }
+
+	/**
+	 * Called by scopes after the agent has been connected to them.
+	 */
+	void introduceAs(std::shared_ptr<AgentBase> agent) { AgentAdded signal(agent); _agendAdded(signal); }
 
 private:
 
 	chr::Receiver _receiver;
 	chr::Sender   _sender;
+
+	chr::Slot<AgentAdded> _agendAdded;
 };
 
 } // namespace detail
